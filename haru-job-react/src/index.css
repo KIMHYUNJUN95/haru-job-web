@@ -1,0 +1,80 @@
+@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+KR:wght@300;400;500;700&display=swap');
+
+@layer base {
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    font-family: 'Inter', 'Noto Sans KR', -apple-system, sans-serif;
+    background: #fff;
+    color: #212322;
+    line-height: 1.55;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  ::selection {
+    background: #00635B;
+    color: #fff;
+  }
+
+  ::-webkit-scrollbar {
+    width: 0;
+  }
+
+  img {
+    display: block;
+    max-width: 100%;
+  }
+
+  a {
+    text-decoration: none;
+    color: inherit;
+  }
+
+  button {
+    font-family: inherit;
+    cursor: pointer;
+    border: none;
+    outline: none;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #212322;
+    color: #fff;
+    border-radius: 100px;
+    font-weight: 500;
+    font-size: 0.9375rem;
+    padding: 14px 36px;
+    transition: all 0.2s ease;
+    letter-spacing: -0.01em;
+  }
+
+  .btn-primary:hover {
+    background: #00635B;
+    transform: translateY(-1px);
+  }
+
+  .section-label {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #00635B;
+    margin-bottom: 16px;
+  }
+}

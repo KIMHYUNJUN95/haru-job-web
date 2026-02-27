@@ -1,0 +1,1046 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stay Ari | 채용</title>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=Playfair+Display:wght@700&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #FAF9F6;
+            /* Soft Ivory */
+            --card-bg: #ffffff;
+            --text-primary: #1D1D1F;
+            /* Matte Black */
+            --text-secondary: #6E6E73;
+            --accent-color: #E8D1B5;
+            /* Light Oak Wood */
+            --accent-hover: #D8C1A5;
+            --border-color: #E5E5E5;
+            --input-bg: #ffffff;
+            --shadow-md: 0 10px 30px rgba(0, 0, 0, 0.05);
+            --success-color: #34c759;
+            --dark-oak: #8B5E3C;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Noto Sans KR', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.7;
+            overflow-x: hidden;
+        }
+
+        /* --- Landing View Styles --- */
+        #landing-view {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding-bottom: 100px;
+            animation: fadeIn 1s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .hero-section {
+            position: relative;
+            height: 90vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+            color: white;
+            margin-bottom: 100px;
+        }
+
+        .hero-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('./images/hero.jpg');
+            background-size: cover;
+            background-position: center;
+            z-index: -1;
+            border-bottom-left-radius: 40px;
+            border-bottom-right-radius: 40px;
+        }
+
+        .company-logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 4.5rem;
+            font-weight: 700;
+            letter-spacing: -2px;
+            margin-bottom: 20px;
+        }
+
+        .hero-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            line-height: 1.4;
+            margin-bottom: 30px;
+            word-break: keep-all;
+        }
+
+        .hero-desc {
+            font-size: 1.25rem;
+            margin-bottom: 40px;
+            font-weight: 300;
+            max-width: 700px;
+            opacity: 0.9;
+        }
+
+        .content-section {
+            padding: 0 24px;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 80px;
+        }
+
+        .section-header h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            position: relative;
+            display: inline-block;
+        }
+
+        .section-header h2::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 3px;
+            background: var(--accent-color);
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 40px;
+            margin-bottom: 100px;
+        }
+
+        .feature-card {
+            background: white;
+            padding: 40px;
+            border-radius: 24px;
+            box-shadow: var(--shadow-md);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-bottom: 4px solid transparent;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            border-color: var(--accent-color);
+        }
+
+        .feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        .feature-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+
+        .feature-text {
+            font-size: 1.05rem;
+            color: var(--text-secondary);
+            line-height: 1.8;
+        }
+
+        .talent-wrap {
+            display: flex;
+            gap: 60px;
+            align-items: center;
+            background: #ffffff;
+            border-radius: 30px;
+            overflow: hidden;
+            box-shadow: var(--shadow-md);
+            margin-bottom: 100px;
+        }
+
+        .talent-img {
+            flex: 1;
+            height: 500px;
+            background-image: url('./images/interior_room.jpg');
+            background-size: cover;
+            background-position: center;
+        }
+
+        .talent-section {
+            flex: 1;
+            padding: 60px;
+            text-align: left;
+        }
+
+        .talent-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 30px;
+        }
+
+        .talent-list li {
+            margin-bottom: 20px;
+            list-style: none;
+            padding-left: 35px;
+            position: relative;
+            font-size: 1.1rem;
+        }
+
+        .talent-list li::before {
+            content: '●';
+            position: absolute;
+            left: 0;
+            color: var(--accent-color);
+            font-size: 1.2rem;
+        }
+
+        .start-btn {
+            background: var(--text-primary);
+            color: white;
+            border: none;
+            padding: 22px 60px;
+            font-size: 1.3rem;
+            font-weight: 600;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+            min-width: 300px;
+            display: inline-block;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .start-btn:hover {
+            background: var(--dark-oak);
+            transform: scale(1.05);
+        }
+
+        .footer-action {
+            text-align: center;
+            padding-top: 50px;
+        }
+
+        .admin-trigger {
+            margin-top: 60px;
+            border-top: 1px solid var(--border-color);
+            padding-top: 30px;
+            opacity: 0.1;
+            transition: opacity 0.3s;
+        }
+
+        .admin-trigger:hover {
+            opacity: 0.5;
+        }
+
+        /* --- Application View Styles --- */
+        #application-view {
+            display: none;
+            padding: 100px 24px;
+            animation: fadeInUp 0.8s ease;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .form-card {
+            background: var(--card-bg);
+            border-radius: 40px;
+            padding: 80px;
+            box-shadow: var(--shadow-md);
+        }
+
+        .header {
+            text-align: left;
+            margin-bottom: 60px;
+        }
+
+        .header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+        }
+
+        .progress-container {
+            width: 100%;
+            background: #F0F0F0;
+            height: 6px;
+            border-radius: 10px;
+            margin-bottom: 60px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: var(--accent-color);
+            width: 0%;
+            transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .step {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .step.active {
+            display: block;
+        }
+
+        .section-title {
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin-bottom: 40px;
+            border-left: 5px solid var(--accent-color);
+            padding-left: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 40px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 12px;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        input[type="tel"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 18px 24px;
+            font-size: 1.1rem;
+            background: #F9F9F9;
+            border: 1px solid #EEEEEE;
+            border-radius: 16px;
+            transition: all 0.3s ease;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            background: #FFFFFF;
+            box-shadow: 0 0 0 4px rgba(232, 209, 181, 0.2);
+        }
+
+        .radio-group,
+        .checkbox-group {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .radio-option {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .radio-option input {
+            display: none;
+        }
+
+        .radio-option span {
+            display: inline-block;
+            padding: 14px 28px;
+            background: #F5F5F7;
+            border-radius: 50px;
+            transition: all 0.3s;
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        .radio-option input:checked+span {
+            background: var(--text-primary);
+            color: white;
+        }
+
+        .btn-container {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 80px;
+            gap: 20px;
+        }
+
+        .btn-prev {
+            background: transparent;
+            color: var(--text-secondary);
+            border: 1px solid #DDD;
+            padding: 18px 45px;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-prev:hover {
+            background: #EEE;
+        }
+
+        .btn-next,
+        .btn-submit {
+            background: var(--text-primary);
+            color: white;
+            padding: 18px 45px;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            flex: 1;
+        }
+
+        .btn-next:hover,
+        .btn-submit:hover {
+            background: var(--dark-oak);
+            transform: translateY(-2px);
+        }
+
+        #prevBtn.hidden {
+            visibility: hidden;
+        }
+
+        @media screen and (max-width: 900px) {
+            .hero-section {
+                height: 70vh;
+                margin-bottom: 60px;
+            }
+
+            .company-logo {
+                font-size: 3rem;
+            }
+
+            .hero-title {
+                font-size: 1.8rem;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .talent-wrap {
+                flex-direction: column;
+            }
+
+            .talent-img {
+                width: 100%;
+                height: 300px;
+            }
+
+            .form-card {
+                padding: 40px 24px;
+                border-radius: 30px;
+            }
+
+            .header h1 {
+                font-size: 2.2rem;
+            }
+
+            .btn-container {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- 1. 랜딩 페이지 (Renewal) -->
+    <div id="landing-view">
+        <div class="hero-section">
+            <div class="hero-bg" id="dynamic-hero"></div>
+            <div class="company-logo">Stay Ari</div>
+            <h1 class="hero-title">도쿄 신주쿠, 가장 따뜻한 집이 되어주는 곳</h1>
+            <p class="hero-desc">프리미엄 숙박 브랜드 Stay Ari와 함께 도쿄의 일상을 특별하게 채워나갈 새로운 가족을 찾습니다.</p>
+            <button onclick="startApplication()" class="start-btn">Join Our Team</button>
+        </div>
+
+        <div class="content-section">
+            <div class="section-header">
+                <h2>Our Values</h2>
+                <p>우리가 일하는 방식과 철학</p>
+            </div>
+
+            <div class="features-grid">
+                <div class="feature-card">
+                    <span class="feature-icon">🌿</span>
+                    <div class="feature-title">정돈된 아름다움</div>
+                    <div class="feature-text">Stay Ari만의 단정하고 따뜻한 공간에서 고객에게 최상의 휴식을 제공합니다.</div>
+                </div>
+                <div class="feature-card">
+                    <span class="feature-icon">✨</span>
+                    <div class="feature-title">서로를 향한 존중</div>
+                    <div class="feature-text">수평적이고 배려 넘치는 분위기 속에서 함께 성장하는 문화를 지향합니다.</div>
+                </div>
+                <div class="feature-card">
+                    <span class="feature-icon">💼</span>
+                    <div class="feature-title">전문적인 성장</div>
+                    <div class="feature-text">체계적인 가이드와 교육을 통해 숙박 관리 전문가로 거듭날 수 있습니다.</div>
+                </div>
+            </div>
+
+            <div class="talent-wrap">
+                <div class="talent-img" id="talent-bg-img"></div>
+                <div class="talent-section">
+                    <div class="talent-title">우리가 함께하고 싶은 분</div>
+                    <ul class="talent-list">
+                        <li>공간에 대한 소중함과 꼼꼼함을 갖추신 분</li>
+                        <li>작은 것 하나에도 진심을 다하는 책임감 있는 분</li>
+                        <li>밝고 긍정적인 에너지로 팀에 활력을 주실 분</li>
+                        <li>도쿄에서의 삶을 의미 있게 만들어가고 싶은 분</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="footer-action">
+                <button onclick="startApplication()" class="start-btn">지금 바로 지원하기</button>
+                <div class="admin-trigger">
+                    <a href="./admin.html" style="text-decoration: none; color: #000;">Management</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- 2. 입사 지원서 폼 (버튼 누르면 보임) -->
+    <div id="application-view">
+        <div class="container">
+            <div class="form-card">
+                <!-- 입력 폼 영역 -->
+                <div id="form-content">
+                    <div class="header">
+                        <h1>Stay Ari</h1>
+                        <p>신규 입사 지원 (이력서 포함)</p>
+                    </div>
+
+                    <div class="progress-container">
+                        <div class="progress-bar" id="progressBar"></div>
+                    </div>
+
+                    <form id="recruitForm">
+                        <!-- (기존 질문 내용들 그대로 유지) -->
+
+                        <!-- Step 1: 기본 정보 -->
+                        <div class="step active">
+                            <div class="section-title">기본 인적 사항</div>
+                            <div class="form-group"><label>1. 성명</label><input type="text" id="name"
+                                    placeholder="성명을 입력하세요" required></div>
+                            <div class="form-group"><label>2. 나이</label><input type="number" id="age" placeholder="만 나이"
+                                    required></div>
+                            <div class="form-group">
+                                <label>3. 성별</label>
+                                <div class="radio-group">
+                                    <label class="radio-option"><input type="radio" name="gender"
+                                            value="남성"><span>남성</span></label>
+                                    <label class="radio-option"><input type="radio" name="gender"
+                                            value="여성"><span>여성</span></label>
+                                </div>
+                            </div>
+                            <div class="form-group"><label>4. 휴대폰 번호</label><input type="tel" id="phone"
+                                    placeholder="010-0000-0000" required></div>
+                            <div class="form-group"><label>5. 카카오톡 ID <span class="required">*</span></label><input
+                                    type="text" id="kakao_id" placeholder="카카오톡 ID를 입력해주세요" required></div>
+                            <div class="form-group"><label>6. 현재 거주지</label><input type="text" id="address"
+                                    placeholder="예: 도쿄도 신주쿠구"></div>
+                            <div class="form-group">
+                                <label>7. 출퇴근 소요 시간 (대중교통 기준)</label>
+                                <select id="commute_time">
+                                    <option value="" disabled selected>선택해주세요</option>
+                                    <option value="30분 이내">30분 이내</option>
+                                    <option value="30분~1시간">30분 ~ 1시간</option>
+                                    <option value="1시간 이상">1시간 이상</option>
+                                </select>
+                            </div>
+                            <div class="form-group"><label>8. 국적</label><input type="text" id="nationality"
+                                    value="대한민국"></div>
+                            <div class="form-group"><label>9. 비자 종류 (외국인 필수)</label><input type="text" id="visa_type"
+                                    placeholder="예: 워킹홀리데이, 유학비자 등"></div>
+                            <div class="form-group"><label>10. 비자 기간 (외국인 필수)</label><input type="text" id="visa_period"
+                                    placeholder="예: 2025년 6월까지"></div>
+                        </div>
+
+                        <!-- Step 2: 근무 일정 -->
+                        <div class="step">
+                            <div class="section-title">근무 가능 일정</div>
+                            <div class="form-group">
+                                <label>11. 근무 희망 요일</label>
+                                <div class="checkbox-group">
+                                    <label class="radio-option"><input type="checkbox" name="days"
+                                            value="월"><span>월</span></label>
+                                    <label class="radio-option"><input type="checkbox" name="days"
+                                            value="화"><span>화</span></label>
+                                    <label class="radio-option"><input type="checkbox" name="days"
+                                            value="수"><span>수</span></label>
+                                    <label class="radio-option"><input type="checkbox" name="days"
+                                            value="목"><span>목</span></label>
+                                    <label class="radio-option"><input type="checkbox" name="days"
+                                            value="금"><span>금</span></label>
+                                    <label class="radio-option"><input type="checkbox" name="days"
+                                            value="토"><span>토</span></label>
+                                    <label class="radio-option"><input type="checkbox" name="days"
+                                            value="일"><span>일</span></label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>12. 주당 희망 근무일수</label>
+                                <select id="days_per_week">
+                                    <option value="" disabled selected>선택해주세요</option>
+                                    <option value="1일">주 1일</option>
+                                    <option value="2일">주 2일</option>
+                                    <option value="3일">주 3일</option>
+                                    <option value="4일">주 4일</option>
+                                    <option value="5일">주 5일</option>
+                                    <option value="6일">주 6일</option>
+                                    <option value="7일">주 7일 (매일)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>13. 근무 희망 기간</label>
+                                <select id="duration">
+                                    <option value="1개월">1개월 미만 (단기)</option>
+                                    <option value="3개월">3개월 이상</option>
+                                    <option value="6개월">6개월 이상</option>
+                                    <option value="1년">1년 이상 (장기)</option>
+                                </select>
+                            </div>
+                            <div class="form-group"><label>14. 근무 시작 가능일</label><input type="text" id="start_date"
+                                    placeholder="예: 즉시 가능"></div>
+                        </div>
+
+                        <!-- Step 3: 경력 -->
+                        <div class="step">
+                            <div class="section-title">경력 및 경험</div>
+                            <div class="form-group">
+                                <label>15. 숙박업 근무 이력</label>
+                                <div class="radio-group">
+                                    <label class="radio-option"><input type="radio" name="exp_hotel" value="유"
+                                            onclick="toggleExp(true)"><span>있음</span></label>
+                                    <label class="radio-option"><input type="radio" name="exp_hotel" value="무"
+                                            onclick="toggleExp(false)"><span>없음 (처음)</span></label>
+                                </div>
+                            </div>
+                            <div id="exp_dependent_section">
+                                <div class="form-group">
+                                    <label>16. 담당했던 주요 업무</label>
+                                    <div class="checkbox-group">
+                                        <label class="radio-option"><input type="checkbox" name="task"
+                                                value="객실청소"><span>객실청소</span></label>
+                                        <label class="radio-option"><input type="checkbox" name="task"
+                                                value="베딩"><span>베딩</span></label>
+                                        <label class="radio-option"><input type="checkbox" name="task"
+                                                value="프론트"><span>프론트</span></label>
+                                        <label class="radio-option"><input type="checkbox" name="task"
+                                                value="기타"><span>기타</span></label>
+                                    </div>
+                                </div>
+                                <div class="form-group"><label>17. 총 경력 기간</label><input type="text" id="total_career"
+                                        placeholder="예: 6개월"></div>
+                                <div class="form-group"><label>18. 전 직장 퇴사 사유</label><input type="text" id="quit_reason"
+                                        placeholder="간략히 입력"></div>
+                            </div>
+                        </div>
+
+                        <!-- Step 4: 성향 -->
+                        <div class="step">
+                            <div class="section-title">업무 성향</div>
+                            <div class="form-group">
+                                <label>19. 체력 자신감</label>
+                                <div class="radio-group">
+                                    <label class="radio-option"><input type="radio" name="fitness" value="자신있음"><span>자신
+                                            있음</span></label>
+                                    <label class="radio-option"><input type="radio" name="fitness"
+                                            value="보통"><span>보통</span></label>
+                                    <label class="radio-option"><input type="radio" name="fitness" value="자신없음"><span>자신
+                                            없음</span></label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>20. 업무 스타일</label>
+                                <div class="radio-group">
+                                    <label class="radio-option"><input type="radio" name="work_style"
+                                            value="독립"><span>혼자 일하는 것</span></label>
+                                    <label class="radio-option"><input type="radio" name="work_style"
+                                            value="협업"><span>팀원과 함께</span></label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>21. 습득 속도</label>
+                                <div class="radio-group">
+                                    <label class="radio-option"><input type="radio" name="learning_speed"
+                                            value="빠름"><span>빠름</span></label>
+                                    <label class="radio-option"><input type="radio" name="learning_speed"
+                                            value="보통"><span>보통</span></label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>22. 꼼꼼함</label>
+                                <div class="radio-group">
+                                    <label class="radio-option"><input type="radio" name="meticulous"
+                                            value="매우꼼꼼"><span>매우 꼼꼼함</span></label>
+                                    <label class="radio-option"><input type="radio" name="meticulous"
+                                            value="보통"><span>보통</span></label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>23. 돌발 상황 대처</label>
+                                <div class="radio-group">
+                                    <label class="radio-option"><input type="radio" name="problem_solving"
+                                            value="스스로"><span>스스로 해결 시도</span></label>
+                                    <label class="radio-option"><input type="radio" name="problem_solving"
+                                            value="문의"><span>관리자에게 문의</span></label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Step 5: 역량 -->
+                        <div class="step">
+                            <div class="section-title">객실 관리 역량</div>
+                            <div class="form-group">
+                                <label>24. 객실 청소 경험</label>
+                                <div class="radio-group">
+                                    <label class="radio-option"><input type="radio" name="cleaning_exp"
+                                            value="있음"><span>있음</span></label>
+                                    <label class="radio-option"><input type="radio" name="cleaning_exp"
+                                            value="없음"><span>없음</span></label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>25. 베딩 숙련도</label>
+                                <select id="bedding_skill">
+                                    <option value="능숙">능숙함</option>
+                                    <option value="경험">경험 있음</option>
+                                    <option value="없음">경험 없음</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>26. 분리수거 규정 숙지</label>
+                                <div class="radio-group">
+                                    <label class="radio-option"><input type="radio" name="recycle" value="숙지"><span>잘 알고
+                                            있음</span></label>
+                                    <label class="radio-option"><input type="radio" name="recycle" value="미숙지"><span>교육
+                                            필요</span></label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>27. 시간 내 완수</label>
+                                <div class="radio-group">
+                                    <label class="radio-option"><input type="radio" name="time_mgmt" value="가능"><span>자신
+                                            있음</span></label>
+                                    <label class="radio-option"><input type="radio" name="time_mgmt" value="노력"><span>노력
+                                            필요</span></label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Step 6: 태도 -->
+                        <div class="step">
+                            <div class="section-title">근무 태도 및 책임감</div>
+                            <div class="form-group">
+                                <label>28. 근태 준수 확약</label>
+                                <div class="radio-group">
+                                    <label class="radio-option"><input type="radio" name="attendance"
+                                            value="준수"><span>철저히 준수 가능</span></label>
+                                    <label class="radio-option"><input type="radio" name="attendance"
+                                            value="불가"><span>어려울 수 있음</span></label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>29. 사내 규정 준수</label>
+                                <div class="radio-group">
+                                    <label class="radio-option"><input type="radio" name="rules" value="네"><span>네,
+                                            준수하겠습니다</span></label>
+                                    <label class="radio-option"><input type="radio" name="rules"
+                                            value="아니오"><span>아니오</span></label>
+                                </div>
+                            </div>
+                            <div class="form-group"><label>30. 지원 동기 및 포부</label><textarea id="motivation"
+                                    placeholder="간단하게 작성해 주세요."></textarea></div>
+                        </div>
+
+                        <!-- Step 7: 마무리 -->
+                        <div class="step">
+                            <div class="section-title">PC / 이력서 / 마무리</div>
+                            <div class="form-group">
+                                <label>31. 건강 상태</label>
+                                <div class="radio-group">
+                                    <label class="radio-option"><input type="radio" name="health"
+                                            value="양호"><span>양호함</span></label>
+                                    <label class="radio-option"><input type="radio" name="health" value="기타"><span>특이사항
+                                            있음</span></label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>32. 장기 근속</label>
+                                <div class="radio-group">
+                                    <label class="radio-option"><input type="radio" name="long_term"
+                                            value="가능"><span>가능</span></label>
+                                    <label class="radio-option"><input type="radio" name="long_term"
+                                            value="불가"><span>불가</span></label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>33. PC 활용 (엑셀/워드)</label>
+                                <div class="radio-group">
+                                    <label class="radio-option"><input type="radio" name="pc_skill" value="상"><span>상
+                                            (능숙)</span></label>
+                                    <label class="radio-option"><input type="radio" name="pc_skill" value="중"><span>중
+                                            (기본)</span></label>
+                                    <label class="radio-option"><input type="radio" name="pc_skill" value="하"><span>하
+                                            (어려움)</span></label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>34. 앱(App) 조작</label>
+                                <div class="radio-group">
+                                    <label class="radio-option"><input type="radio" name="app_skill"
+                                            value="문제없음"><span>문제없음 (익숙함)</span></label>
+                                    <label class="radio-option"><input type="radio" name="app_skill"
+                                            value="보통"><span>보통</span></label>
+                                    <label class="radio-option"><input type="radio" name="app_skill"
+                                            value="어려움"><span>어려움</span></label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>35. 시스템 교육 의지</label>
+                                <div class="radio-group">
+                                    <label class="radio-option"><input type="radio" name="system_edu"
+                                            value="가능"><span>습득 가능</span></label>
+                                    <label class="radio-option"><input type="radio" name="system_edu"
+                                            value="걱정"><span>걱정됨</span></label>
+                                </div>
+                            </div>
+                            <div class="form-group"><label>36. 한마디</label><textarea id="comment"
+                                    placeholder="자유롭게 남겨주세요."></textarea></div>
+
+                            <div class="form-group"
+                                style="margin-top:40px; border-top:1px solid #eee; padding-top:30px;">
+                                <label>📁 이력서 파일 첨부 (선택)</label>
+                                <div class="file-upload-wrapper">
+                                    <input type="file" id="resume_file" style="display:none;"
+                                        accept=".pdf,.doc,.docx,.hwp,.jpg,.png">
+                                    <label for="resume_file" class="file-upload-label">
+                                        <span>+ 이력서 또는 포트폴리오 업로드 (클릭)</span>
+                                    </label>
+                                    <div id="file-name-display"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="btn-container">
+                            <button type="button" id="prevBtn" class="btn-prev hidden">이전 단계</button>
+                            <button type="button" id="nextBtn" class="btn-next">다음 단계</button>
+                            <button type="submit" id="submitBtn" class="btn-submit" style="display:none;">지원서
+                                제출하기</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div id="success-view">
+                    <div class="check-icon">✔️</div>
+                    <h2 class="success-title">제출이 완료되었습니다.</h2>
+                    <p class="success-desc">
+                        소중한 지원 감사합니다.<br>
+                        제출해주신 내용은 담당자가 꼼꼼히 검토한 후,<br>
+                        면접 대상자분께 개별적으로 연락드리겠습니다.
+                    </p>
+                    <!-- 아르바이트 안내서 링크 -->
+                    <p class="notion-guide">
+                        <a href="https://www.notion.so/256d3d1f0c0e80cab12fcacc79a4e6b8" target="_blank"
+                            style="color: var(--accent-color); text-decoration: underline; font-weight: 600;">
+                            아르바이트 안내서 (필독)
+                        </a>
+                        <br>
+                        지원 전 반드시 읽어주세요.
+                    </p>
+                    <button onclick="window.location.reload()" class="btn-next" style="padding: 12px 40px;">
+                        처음으로 돌아가기
+                    </button>
+                </div>
+
+
+                <script type="module">
+                    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+                    import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+                    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
+
+                    const firebaseConfig = {
+                        apiKey: "AIzaSyD_CxXn9H4aXKybfYpazH7DwQ9pYZRAq4E",
+                        authDomain: "haru-recruit.firebaseapp.com",
+                        projectId: "haru-recruit",
+                        storageBucket: "haru-recruit.firebasestorage.app",
+                        messagingSenderId: "344321160794",
+                        appId: "1:344321160794:web:483a10b3f845fb607b0a63",
+                        measurementId: "G-Y8TXEMLFRN"
+                    };
+
+                    const app = initializeApp(firebaseConfig);
+                    const db = getFirestore(app);
+                    const storage = getStorage(app);
+
+                    // 전역 함수로 등록 (HTML의 onclick에서 사용하기 위함)
+                    window.startApplication = function () {
+                        document.getElementById('landing-view').style.display = 'none';
+                        document.getElementById('application-view').style.display = 'block';
+                        window.scrollTo(0, 0);
+                    };
+
+                    // --- UI Logic ---
+                    const steps = document.querySelectorAll('.step');
+                    const prevBtn = document.getElementById('prevBtn');
+                    const nextBtn = document.getElementById('nextBtn');
+                    const submitBtn = document.getElementById('submitBtn');
+                    const progressBar = document.getElementById('progressBar');
+                    let currentStep = 0;
+
+                    function updateStep() {
+                        steps.forEach((step, index) => {
+                            step.classList.remove('active');
+                            if (index === currentStep) step.classList.add('active');
+                        });
+                        if (currentStep === 0) prevBtn.classList.add('hidden');
+                        else prevBtn.classList.remove('hidden');
+
+                        if (currentStep === steps.length - 1) {
+                            nextBtn.style.display = 'none';
+                            submitBtn.style.display = 'block';
+                        } else {
+                            nextBtn.style.display = 'block';
+                            submitBtn.style.display = 'none';
+                        }
+                        const progress = ((currentStep + 1) / steps.length) * 100;
+                        progressBar.style.width = `${progress}%`;
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }
+
+                    nextBtn.addEventListener('click', () => { if (currentStep < steps.length - 1) { currentStep++; updateStep(); } });
+                    prevBtn.addEventListener('click', () => { if (currentStep > 0) { currentStep--; updateStep(); } });
+
+                    const fileInput = document.getElementById('resume_file');
+                    const fileNameDisplay = document.getElementById('file-name-display');
+                    fileInput.addEventListener('change', function () {
+                        if (this.files && this.files.length > 0) {
+                            fileNameDisplay.style.display = 'block';
+                            fileNameDisplay.innerText = "선택된 파일: " + this.files[0].name;
+                        } else {
+                            fileNameDisplay.style.display = 'none';
+                        }
+                    });
+
+                    window.toggleExp = function (hasExp) {
+                        const section = document.getElementById('exp_dependent_section');
+                        const inputs = section.querySelectorAll('input, select');
+
+                        if (hasExp) {
+                            section.classList.remove('disabled-group');
+                            inputs.forEach(input => input.disabled = false);
+                        } else {
+                            section.classList.add('disabled-group');
+                            inputs.forEach(input => {
+                                input.disabled = true;
+                                if (input.type === 'checkbox' || input.type === 'radio') input.checked = false;
+                                else input.value = "";
+                            });
+                        }
+                    };
+                    updateStep();
+
+                    function getRadioValue(name) { const el = document.querySelector(`input[name="${name}"]:checked`); return el ? el.value : ""; }
+                    function getCheckboxValues(name) { return Array.from(document.querySelectorAll(`input[name="${name}"]:checked`)).map(el => el.value); }
+                    function getValue(id) { const el = document.getElementById(id); return el ? el.value : ""; }
+
+                    document.getElementById('recruitForm').addEventListener('submit', async (e) => {
+                        e.preventDefault();
+                        submitBtn.innerText = "전송 중... (잠시만 기다려주세요)";
+                        submitBtn.disabled = true;
+
+                        let fileUrl = "";
+
+                        try {
+                            const file = fileInput.files[0];
+                            if (file) {
+                                const storageRef = ref(storage, 'resumes/' + Date.now() + '_' + file.name);
+                                await uploadBytes(storageRef, file);
+                                fileUrl = await getDownloadURL(storageRef);
+                            }
+
+                            const formData = {
+                                name: getValue('name'), age: getValue('age'), gender: getRadioValue('gender'), phone: getValue('phone'), address: getValue('address'), nationality: getValue('nationality'),
+                                kakao_id: getValue('kakao_id'), commute_time: getValue('commute_time'), visa_type: getValue('visa_type'), visa_period: getValue('visa_period'),
+                                desired_days: getCheckboxValues('days'), days_per_week: getValue('days_per_week'), duration: getValue('duration'), start_date: getValue('start_date'),
+                                exp_hotel: getRadioValue('exp_hotel'), exp_tasks: getCheckboxValues('task'), career_total: getValue('total_career'), quit_reason: getValue('quit_reason'),
+                                fitness: getRadioValue('fitness'), work_style: getRadioValue('work_style'), learning_speed: getRadioValue('learning_speed'), meticulous: getRadioValue('meticulous'), problem_solving: getRadioValue('problem_solving'),
+                                cleaning_exp: getRadioValue('cleaning_exp'), bedding_skill: getValue('bedding_skill'), recycle: getRadioValue('recycle'), time_mgmt: getRadioValue('time_mgmt'),
+                                attendance: getRadioValue('attendance'), rules: getRadioValue('rules'), motivation: getValue('motivation'),
+                                health: getRadioValue('health'), long_term: getRadioValue('long_term'), pc_skill: getRadioValue('pc_skill'), app_skill: getRadioValue('app_skill'), system_edu: getRadioValue('system_edu'), comment: getValue('comment'),
+                                resume_url: fileUrl,
+                                appliedAt: serverTimestamp()
+                            };
+
+                            await addDoc(collection(db, "applicants"), formData);
+
+                            document.getElementById('form-content').style.display = 'none';
+                            document.getElementById('success-view').style.display = 'block';
+
+                        } catch (e) {
+                            console.error(e);
+                            alert("전송 중 오류가 발생했습니다.");
+                            submitBtn.innerText = "지원서 제출하기";
+                            submitBtn.disabled = false;
+                        }
+                    });
+                </script>
+
+</body>
+
+</html>

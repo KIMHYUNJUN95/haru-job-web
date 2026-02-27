@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>관리자 페이지 | HARU</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap"
+        rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-color: #FAF9F6;
+            --card-bg: #ffffff;
+            --text-primary: #1D1D1F;
+            --text-secondary: #6E6E73;
+            --accent-color: #E8D1B5;
+            /* Oak Wood */
+            --accent-hover: #D8C1A5;
+            --border-color: #E5E5E5;
+            --danger-color: #ff3b30;
+            --dark-oak: #8B5E3C;
+            --shadow-md: 0 10px 30px rgba(0, 0, 0, 0.05);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            font-family: -apple-system, BlinkMacSystemFont, 'Noto Sans KR', sans-serif;
+            margin: 0;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+            color: var(--text-primary);
+        }
+
+        .sidebar {
+            width: 400px;
+            background: var(--card-bg);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-header {
+            padding: 40px 30px;
+            border-bottom: 1px solid var(--border-color);
+            background: #fff;
+        }
+
+        .sidebar-header h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 10px;
+        }
+
+        .sidebar-header .count-badge {
+            display: inline-block;
+            background: var(--bg-color);
+            color: var(--text-secondary);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        #listContainer {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        #listContainer::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        #listContainer::-webkit-scrollbar-thumb {
+            background: var(--accent-color);
+            border-radius: 10px;
+        }
+
+        .applicant-item {
+            padding: 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 15px;
+            background: #fff;
+            border: 1px solid transparent;
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
+        }
+
+        .applicant-item:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--accent-color);
+        }
+
+        .applicant-item.active {
+            background-color: #fff;
+            border-color: var(--text-primary);
+            box-shadow: var(--shadow-md);
+        }
+
+        .applicant-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .avatar-male {
+            background: #E5E5E5;
+            color: #666;
+        }
+
+        .avatar-female {
+            background: var(--accent-color);
+            color: white;
+        }
+
+        .applicant-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .applicant-name {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .applicant-name .age-tag {
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            opacity: 0.7;
+        }
+
+        .applicant-meta {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .applicant-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .tag {
+            font-size: 0.75rem;
+            padding: 4px 10px;
+            border-radius: 50px;
+            font-weight: 600;
+        }
+
+        .tag-days {
+            background: #F0F0F0;
+            color: #666;
+        }
+
+        .tag-exp {
+            background: #FFF9F2;
+            color: var(--dark-oak);
+            border: 1px solid var(--accent-color);
+        }
+
+        .tag-new {
+            background: var(--text-primary);
+            color: white;
+        }
+
+        .preview-area {
+            flex: 1;
+            background: var(--bg-color);
+            padding: 50px;
+            overflow-y: auto;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            position: relative;
+        }
+
+        .a4-paper {
+            width: 100%;
+            max-width: 850px;
+            background: white;
+            padding: 80px;
+            box-shadow: var(--shadow-md);
+            border-radius: 30px;
+            color: var(--text-primary);
+        }
+
+        .resume-header {
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 40px;
+            margin-bottom: 50px;
+        }
+
+        .resume-header h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 3rem;
+            color: var(--text-primary);
+            margin-bottom: 15px;
+        }
+
+        .resume-header p {
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+
+        .resume-section {
+            margin-bottom: 50px;
+        }
+
+        .resume-section h3 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            border-bottom: 3px solid var(--accent-color);
+            display: inline-block;
+            padding-bottom: 8px;
+            margin-bottom: 25px;
+        }
+
+        .row {
+            display: flex;
+            margin-bottom: 15px;
+            font-size: 1.05rem;
+            line-height: 1.6;
+        }
+
+        .label {
+            width: 160px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            flex-shrink: 0;
+        }
+
+        .value {
+            flex: 1;
+            color: var(--text-primary);
+        }
+
+        .print-btn {
+            position: absolute;
+            top: 40px;
+            right: 50px;
+            padding: 14px 28px;
+            background: white;
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s;
+            z-index: 100;
+        }
+
+        .print-btn:hover {
+            background: var(--text-primary);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .download-link {
+            display: inline-block;
+            padding: 15px 30px;
+            background: var(--bg-color);
+            color: var(--text-primary);
+            text-decoration: none;
+            border-radius: 12px;
+            font-weight: 600;
+            margin-bottom: 40px;
+            transition: all 0.3s;
+            border: 1px dashed var(--accent-color);
+        }
+
+        .download-link:hover {
+            background: #FFF9F2;
+            border-color: var(--dark-oak);
+        }
+
+        .delete-btn {
+            background-color: transparent;
+            color: var(--danger-color);
+            border: 1px solid var(--danger-color);
+            padding: 12px 24px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            opacity: 0.6;
+        }
+
+        .delete-btn:hover {
+            background-color: var(--danger-color);
+            color: white;
+            opacity: 1;
+        }
+
+        @media print {
+            body {
+                background: white;
+                display: block;
+                height: auto;
+                padding: 0;
+            }
+
+            .sidebar,
+            .print-btn,
+            .download-link,
+            .delete-btn {
+                display: none !important;
+            }
+
+            .preview-area {
+                background: white;
+                padding: 0;
+                display: block;
+            }
+
+            .a4-paper {
+                box-shadow: none;
+                width: 100%;
+                margin: 0;
+                padding: 0;
+            }
+        }
+
+        @media screen and (max-width: 1024px) {
+            body {
+                flex-direction: column;
+                overflow: auto;
+            }
+
+            .sidebar {
+                width: 100%;
+                height: auto;
+                border-right: none;
+                border-bottom: 1px solid var(--border-color);
+            }
+
+            .a4-paper {
+                padding: 40px 30px;
+                border-radius: 20px;
+            }
+
+            .resume-header h1 {
+                font-size: 2.2rem;
+            }
+        }
+    </style>
+</head>
+
+<!-- --- Login Modal --- -->
+<div id="login-overlay"
+    style="display: flex; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); z-index: 1000; justify-content: center; align-items: center;">
+    <div class="login-card"
+        style="background: white; padding: 50px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); text-align: center; max-width: 400px; width: 90%;">
+        <h1 style="font-family: 'Playfair Display', serif; margin-bottom: 30px; color: var(--text-primary);">Admin
+            Access</h1>
+        <input type="email" id="login-email" placeholder="이메일 주소"
+            style="margin-bottom: 15px; border-radius: 12px; padding: 15px; width: calc(100% - 30px); border: 1px solid var(--border-color);">
+        <input type="password" id="login-password" placeholder="비밀번호"
+            style="margin-bottom: 30px; border-radius: 12px; padding: 15px; width: calc(100% - 30px); border: 1px solid var(--border-color);">
+        <button onclick="handleLogin()" class="start-btn"
+            style="width: 100%; min-width: auto; padding: 18px; background: var(--accent-color); color: white; border: none; border-radius: 12px; font-size: 1.1rem; cursor: pointer; transition: background 0.3s;">Sign
+            In</button>
+        <p id="login-error" style="color: var(--danger-color); margin-top: 15px; font-size: 0.9rem; display: none;"></p>
+    </div>
+</div>
+
+<div id="admin-dashboard" style="display: none; width: 100%; height: 100vh; gap: 0;">
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h2>지원자 목록</h2>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span class="count-badge" id="applicantCount">불러오는 중...</span>
+                <button onclick="handleLogout()"
+                    style="background: none; border: none; color: var(--text-secondary); cursor: pointer; font-size: 0.8rem; text-decoration: underline;">Logout</button>
+            </div>
+        </div>
+        <div id="listContainer">
+            <div class="empty-state">
+                <div class="icon">⏳</div>
+                <p>로딩 중...</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="preview-area">
+        <button class="print-btn" onclick="window.print()">인쇄 / PDF 저장</button>
+        <div id="resumeSheet" class="a4-paper">
+            <div style="text-align: center; padding-top: 150px; color: #999; font-size: 1.1rem;">
+                좌측 목록에서 지원자를 선택해주세요.
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getFirestore, collection, getDocs, orderBy, query, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyD_CxXn9H4aXKybfYpazH7DwQ9pYZRAq4E",
+        authDomain: "haru-recruit.firebaseapp.com",
+        projectId: "haru-recruit",
+        storageBucket: "haru-recruit.firebasestorage.app",
+        messagingSenderId: "344321160794",
+        appId: "1:344321160794:web:483a10b3f845fb607b0a63",
+        measurementId: "G-Y8TXEMLFRN"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+
+    const loginOverlay = document.getElementById('login-overlay');
+    const adminDashboard = document.getElementById('admin-dashboard');
+    const listContainer = document.getElementById('listContainer');
+    const resumeSheet = document.getElementById('resumeSheet');
+
+    // --- Auth Monitoring ---
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            loginOverlay.style.display = 'none';
+            adminDashboard.style.display = 'flex';
+            fetchApplicants();
+        } else {
+            loginOverlay.style.display = 'flex';
+            adminDashboard.style.display = 'none';
+        }
+    });
+
+    window.handleLogin = async () => {
+        const email = document.getElementById('login-email').value;
+        const pass = document.getElementById('login-password').value;
+        const errorEl = document.getElementById('login-error');
+
+        try {
+            await signInWithEmailAndPassword(auth, email, pass);
+            errorEl.style.display = 'none';
+        } catch (e) {
+            errorEl.textContent = "로그인 실패: " + e.message;
+            errorEl.style.display = 'block';
+        }
+    };
+
+    window.handleLogout = () => signOut(auth);
+
+    window.fetchApplicants = async function () {
+        const q = query(collection(db, "applicants"), orderBy("appliedAt", "desc"));
+        const querySnapshot = await getDocs(q);
+        listContainer.innerHTML = "";
+        const countBadge = document.getElementById('applicantCount');
+
+        if (querySnapshot.empty) {
+            countBadge.textContent = "0명";
+            listContainer.innerHTML = `<div class="empty-state"><div class="icon">📭</div><p>아직 지원자가 없습니다.</p></div>`;
+            return;
+        }
+
+        countBadge.textContent = `총 ${querySnapshot.size}명`;
+
+        querySnapshot.forEach((docSnap) => {
+            const data = docSnap.data();
+            data.id = docSnap.id;
+
+            const date = data.appliedAt ? data.appliedAt.toDate() : new Date();
+            const now = new Date();
+            const diffHours = Math.floor((now - date) / (1000 * 60 * 60));
+            const diffDays = Math.floor(diffHours / 24);
+
+            let timeAgo;
+            if (diffHours < 1) timeAgo = '방금 전';
+            else if (diffHours < 24) timeAgo = `${diffHours}시간 전`;
+            else if (diffDays < 7) timeAgo = `${diffDays}일 전`;
+            else timeAgo = `${date.getMonth() + 1}/${date.getDate()}`;
+
+            const dateStr = `${date.getMonth() + 1}.${date.getDate()} ${date.getHours()}:${date.getMinutes().toString().padStart(2, '0')}`;
+
+            // 아바타 (이름 첫글자 + 성별 색상)
+            const initial = data.name ? data.name.charAt(0) : '?';
+            const avatarClass = data.gender === '여성' ? 'avatar-female' : 'avatar-male';
+
+            // 태그 생성
+            let tags = '';
+            if (diffHours < 24) tags += '<span class="tag tag-new">NEW</span>';
+            if (data.desired_days && data.desired_days.length > 0) {
+                const daysText = data.desired_days.length === 7 ? '매일' : `주${data.desired_days.length}일`;
+                tags += `<span class="tag tag-days">${daysText}</span>`;
+            }
+            if (data.exp_hotel === '유') tags += '<span class="tag tag-exp">경력</span>';
+            if (data.duration) tags += `<span class="tag tag-duration">${data.duration}</span>`;
+
+            const div = document.createElement('div');
+            div.className = 'applicant-item';
+            div.innerHTML = `
+                    <div class="applicant-avatar ${avatarClass}">${initial}</div>
+                    <div class="applicant-info">
+                        <div class="applicant-name">${data.name}<span class="age-tag">${data.age}세 · ${data.gender || ''}</span></div>
+                        <div class="applicant-meta">
+                            <span>${timeAgo}</span>
+                            <span class="dot"></span>
+                            <span>${dateStr}</span>
+                        </div>
+                        <div class="applicant-tags">${tags}</div>
+                    </div>
+                `;
+            div.onclick = () => showResume(data, div);
+            listContainer.appendChild(div);
+        });
+    }
+
+    window.showResume = (data, element) => {
+        document.querySelectorAll('.applicant-item').forEach(el => el.classList.remove('active'));
+        element.classList.add('active');
+
+        const days = Array.isArray(data.desired_days) ? data.desired_days.join(', ') : data.desired_days;
+        const expTasks = (data.exp_hotel === '무' || !data.exp_tasks || data.exp_tasks.length === 0) ? '-' : data.exp_tasks.join(', ');
+
+        let downloadBtn = '';
+        if (data.resume_url) {
+            downloadBtn = `<div style="text-align:center;"><a href="${data.resume_url}" target="_blank" class="download-link">📎 첨부된 이력서 다운로드</a></div>`;
+        }
+
+        resumeSheet.innerHTML = `
+                <div class="resume-header">
+                    <h1>입사 지원서</h1>
+                    <p>지원일시: ${data.appliedAt ? data.appliedAt.toDate().toLocaleString() : '-'}</p>
+                </div>
+                ${downloadBtn}
+                <div class="resume-section">
+                    <h3>기본 인적 사항</h3>
+                    <div class="row"><div class="label">성명 (성별)</div><div class="value">${data.name} (${data.gender})</div></div>
+                    <div class="row"><div class="label">나이 / 국적</div><div class="value">${data.age}세 / ${data.nationality}</div></div>
+                    <div class="row"><div class="label">연락처</div><div class="value">${data.phone}</div></div>
+                    <div class="row"><div class="label">카카오톡 ID</div><div class="value">${data.kakao_id || '-'}</div></div>
+                    <div class="row"><div class="label">주소</div><div class="value">${data.address}</div></div>
+                    <div class="row"><div class="label">출퇴근 시간</div><div class="value">${data.commute_time || '-'}</div></div>
+                    <div class="row"><div class="label">비자 종류</div><div class="value">${data.visa_type || '-'}</div></div>
+                    <div class="row"><div class="label">비자 기간</div><div class="value">${data.visa_period || '-'}</div></div>
+                </div>
+                <div class="resume-section">
+                    <h3>근무 가능 일정</h3>
+                    <div class="row"><div class="label">희망 요일</div><div class="value">${days}</div></div>
+                    <div class="row"><div class="label">주당 근무일수</div><div class="value">${data.days_per_week || '-'}</div></div>
+                    <div class="row"><div class="label">희망 기간</div><div class="value">${data.duration}</div></div>
+                    <div class="row"><div class="label">시작 가능일</div><div class="value">${data.start_date}</div></div>
+                </div>
+                <div class="resume-section">
+                    <h3>경력 및 경험</h3>
+                    <div class="row"><div class="label">숙박업 경험</div><div class="value">${data.exp_hotel === '유' ? '있음' : '없음'}</div></div>
+                    <div class="row"><div class="label">담당 업무</div><div class="value">${expTasks}</div></div>
+                    <div class="row"><div class="label">총 경력</div><div class="value">${data.career_total || '-'}</div></div>
+                    <div class="row"><div class="label">퇴사 사유</div><div class="value">${data.quit_reason || '-'}</div></div>
+                </div>
+                <div class="resume-section">
+                    <h3>성향 및 역량</h3>
+                    <div class="row"><div class="label">체력 자신감</div><div class="value">${data.fitness}</div></div>
+                    <div class="row"><div class="label">업무 스타일</div><div class="value">${data.work_style}</div></div>
+                    <div class="row"><div class="label">습득 속도/꼼꼼함</div><div class="value">${data.learning_speed} / ${data.meticulous}</div></div>
+                    <div class="row"><div class="label">객실 청소 경험</div><div class="value">${data.cleaning_exp} (베딩: ${data.bedding_skill})</div></div>
+                </div>
+                <div class="resume-section">
+                    <h3>PC 및 디지털 활용</h3>
+                    <div class="row"><div class="label">PC (엑셀/워드)</div><div class="value">${data.pc_skill || '-'}</div></div>
+                    <div class="row"><div class="label">앱(App) 조작</div><div class="value">${data.app_skill || '-'}</div></div>
+                    <div class="row"><div class="label">시스템 교육의지</div><div class="value">${data.system_edu}</div></div>
+                </div>
+
+                <div class="resume-section" style="border-bottom:none;">
+                    <h3>자기소개 및 기타</h3>
+                    <div class="row"><div class="label">근태/규정 준수</div><div class="value">${data.attendance} / ${data.rules}</div></div>
+                    <div class="row"><div class="label">지원 동기</div><div class="value">${data.motivation}</div></div>
+                    <div class="row"><div class="label">하고 싶은 말</div><div class="value">${data.comment || '-'}</div></div>
+                </div>
+
+                <!-- 🆕 삭제 버튼 추가 -->
+                <div style="border-top: 1px solid #eee; padding-top: 20px; overflow: hidden;">
+                    <button onclick="deleteData('${data.id}')" class="delete-btn">🗑️ 이 지원자 정보 삭제</button>
+                </div>
+            `;
+    };
+
+    window.deleteData = async (id) => {
+        if (confirm("정말로 이 지원자 정보를 삭제하시겠습니까?\n(삭제 후에는 복구할 수 없습니다)")) {
+            try {
+                await deleteDoc(doc(db, "applicants", id));
+                alert("삭제되었습니다.");
+                fetchApplicants();
+                resumeSheet.innerHTML = '<div style="text-align: center; padding-top: 150px; color: #999;">좌측 목록에서 지원자를 선택해주세요.</div>';
+            } catch (e) {
+                alert("삭제 실패: " + e.message);
+            }
+        }
+    };
+</script>
+</body>
+
+</html>
