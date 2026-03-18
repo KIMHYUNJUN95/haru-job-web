@@ -20,6 +20,8 @@ const ApplicationPage = () => {
         // 추가 역량 및 업종 경험 관련 필드
         has_industry_exp: '', // '예', '아니오'
         industry_tasks: [] as string[], // '베딩', '인포메이션(프론트)', '객실 청소', '기타'
+        source: '', // 지원 경로
+        motivation: '', // 지원 동기
         resume_file: null as File | null, // 이력서 첨부 (선택)
     });
 
@@ -87,6 +89,8 @@ const ApplicationPage = () => {
                 start_date: formData.start_date,
                 has_industry_exp: formData.has_industry_exp,
                 industry_tasks: formData.industry_tasks,
+                source: formData.source,
+                motivation: formData.motivation,
                 resumeUrl: resumeUrl, // 업로드된 이력서 링크 (없으면 null)
                 createdAt: serverTimestamp(),
                 status: '대기 중' // 관리자 대시보드 관리용 초기 상태
@@ -243,6 +247,17 @@ const ApplicationPage = () => {
                                 </motion.div>
                             )}
                         </AnimatePresence>
+
+                        <div className="pt-6 space-y-6">
+                            <div>
+                                <label className="block text-[13px] font-bold text-[#555] mb-2 uppercase">17. 어느 사이트를 보고 지원하셨나요? *</label>
+                                <input required className="w-full bg-[#f9f9f9] border border-[#ddd] rounded-2xl px-5 py-4 focus:outline-none focus:border-[#111] focus:ring-1 focus:ring-[#111] focus:bg-white text-[#111] transition-all shadow-sm" name="source" onChange={handleChange} value={formData.source} placeholder="예: 인디드, 페이스북, 지인 소개 등" />
+                            </div>
+                            <div>
+                                <label className="block text-[13px] font-bold text-[#555] mb-2 uppercase">18. 지원하게 된 계기 (지원 동기) *</label>
+                                <textarea required className="w-full bg-[#f9f9f9] border border-[#ddd] rounded-2xl px-5 py-4 focus:outline-none focus:border-[#111] focus:ring-1 focus:ring-[#111] focus:bg-white text-[#111] transition-all shadow-sm min-h-[120px] resize-none" name="motivation" onChange={handleChange} value={formData.motivation} placeholder="지원하게 된 동기를 자유롭게 작성해주세요" />
+                            </div>
+                        </div>
                     </motion.div>
                 );
             case 4:
