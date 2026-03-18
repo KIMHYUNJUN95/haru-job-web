@@ -1,8 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { collection, query, orderBy, onSnapshot, deleteDoc, doc, Timestamp } from 'firebase/firestore';
 import { db } from '../firebase';
-import { LogOut, Trash2, Mail, Phone, Calendar, Clock, Printer, FileDown, X } from 'lucide-react';
+import { LogOut, Trash2, Mail, Phone, Calendar, Clock, Printer, FileDown, X, MessageSquare, Send } from 'lucide-react';
+import { useChat } from '../hooks/useChat';
 
 export interface Applicant {
     id: string;
@@ -45,6 +46,14 @@ const AdminPage = () => {
     const [applicants, setApplicants] = useState<Applicant[]>([]);
     const [selectedApplicant, setSelectedApplicant] = useState<Applicant | null>(null);
     const [isMobileDetailOpen, setIsMobileDetailOpen] = useState(false);
+    
+    // 채팅 관련 상태
+    const [viewMode, setViewMode] = useState<'applications' | 'chats'>('applications');
+    const [chatRooms, setChatRooms] = useState<any[]>([]);
+    const [selectedRoom, setSelectedRoom] = useState<any | null>(null);
+    const [adminInput, setAdminInput] = useState('');
+    const { messages: currentChatMessages, sendMessage: sendAdminMessage } = useChat(selectedRoom?.id || null);
+    const chatScrollRef = useRef<HTMLDivElement>(null);
 
     // 로그인 된 경우에만 지원자 목록 가져오기 (기존 applicants + 신규 applications 두 컬렉션 병합)
     useEffect(() => {
@@ -84,6 +93,26 @@ const AdminPage = () => {
 
         return () => { unsub1(); unsub2(); };
     }, [isAuthenticated]);
+
+    // 채팅방 목록 가져오기
+    useEffect(() => {
+        if (!isAuthenticated || viewMode !== 'chats') return;
+
+        const q = query(collection(db, 'chat_rooms'), orderBy('lastMessageTime', 'desc'));
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+            const rooms = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+            setChatRooms(rooms);
+        });
+
+        return () => unsubscribe();
+    }, [isAuthenticated, viewMode]);
+
+    // 채팅 스크롤 제어
+    useEffect(() => {
+        if (chatScrollRef.current) {
+            chatScrollRef.current.scrollTop = chatScrollRef.current.scrollHeight;
+        }
+    }, [currentChatMessages]);
 
     const handleLogin = (e: React.FormEvent) => {
         e.preventDefault();
@@ -158,8 +187,21 @@ const AdminPage = () => {
             <div className={`w-full md:w-[420px] border-r border-gray-200 flex-col bg-white shadow-xl z-20 print:hidden ${isMobileDetailOpen ? 'hidden md:flex' : 'flex'}`}>
                 <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-white z-10">
                     <div>
-                        <h2 className="font-serif text-[1.5rem] font-extrabold tracking-tight">지원자 대시보드</h2>
-                        <p className="text-blue-600 font-bold text-sm mt-1">{applicants.length}명 대기 중</p>
+                        <h2 className="font-serif text-[1.5rem] font-extrabold tracking-tight">Admin Portal</h2>
+                        <div className="flex gap-4 mt-2">
+                            <button 
+                                onClick={() => setViewMode('applications')} 
+                                className={`text-sm font-bold pb-1 border-b-2 transition-all ${viewMode === 'applications' ? 'text-[#111] border-[#111]' : 'text-gray-400 border-transparent'}`}
+                            >
+                                지원서 ({applicants.length})
+                            </button>
+                            <button 
+                                onClick={() => setViewMode('chats')} 
+                                className={`text-sm font-bold pb-1 border-b-2 transition-all ${viewMode === 'chats' ? 'text-[#111] border-[#111]' : 'text-gray-400 border-transparent'}`}
+                            >
+                                실시간 문의 ({chatRooms.length})
+                            </button>
+                        </div>
                     </div>
                     <button onClick={handleLogout} className="text-gray-400 hover:text-gray-800 transition-colors p-2 bg-gray-50 rounded-full hover:bg-gray-100" title="로그아웃">
                         <LogOut className="w-5 h-5" />
@@ -167,35 +209,65 @@ const AdminPage = () => {
                 </div>
 
                 <div className="flex-1 overflow-y-auto p-4 space-y-3 print:hidden bg-gray-50/30">
-                    {applicants.length === 0 ? (
-                        <div className="text-center py-10 text-gray-500 font-medium">새로운 지원자가 없습니다.</div>
+                    {viewMode === 'applications' ? (
+                        /* 기존 지원자 목록 */
+                        applicants.length === 0 ? (
+                            <div className="text-center py-10 text-gray-500 font-medium">새로운 지원자가 없습니다.</div>
+                        ) : (
+                            applicants.map(app => {
+                                const appliedAt = app.appliedAt instanceof Timestamp ? app.appliedAt.toDate().toLocaleDateString() : (app as any).createdAt instanceof Timestamp ? (app as any).createdAt.toDate().toLocaleDateString() : '';
+                                return (
+                                    <div
+                                        key={app.id}
+                                        onClick={() => {
+                                            setSelectedApplicant(app);
+                                            setSelectedRoom(null);
+                                            setIsMobileDetailOpen(true);
+                                        }}
+                                        className={`p-5 rounded-2xl cursor-pointer transition-all border ${selectedApplicant?.id === app.id ? 'bg-white border-[#111] shadow-[0_4px_15px_rgba(0,0,0,0.05)]' : 'bg-transparent border-transparent hover:border-gray-200 hover:bg-white'}`}
+                                    >
+                                        <div className="flex justify-between items-start mb-2">
+                                            <h3 className="font-extrabold text-[#111] text-lg flex items-center gap-2">
+                                                {app.name}
+                                                <span className="text-xs font-bold text-gray-600 bg-gray-100 px-2 py-1 rounded-full">{app.age}세 · {app.gender}</span>
+                                            </h3>
+                                            <span className="text-xs text-gray-400 font-medium">{appliedAt}</span>
+                                        </div>
+                                        <div className="flex flex-wrap gap-2 mt-3">
+                                            {(app.has_industry_exp === '있음' || app.exp_hotel === '유') && <span className="text-[11px] font-bold bg-amber-50 text-amber-700 px-2.5 py-1 rounded-lg border border-amber-100/50">동종경력</span>}
+                                            {(app.resumeUrl || app.resume_url) && <span className="text-[11px] font-bold bg-blue-50 text-blue-700 px-2.5 py-1 rounded-lg border border-blue-100/50">이력서 첨부</span>}
+                                            <span className="text-[11px] font-bold bg-gray-100 text-gray-700 px-2.5 py-1 rounded-lg">{app.duration || '기간미정'}</span>
+                                        </div>
+                                    </div>
+                                );
+                            })
+                        )
                     ) : (
-                        applicants.map(app => {
-                            const appliedAt = app.appliedAt instanceof Timestamp ? app.appliedAt.toDate().toLocaleDateString() : (app as any).createdAt instanceof Timestamp ? (app as any).createdAt.toDate().toLocaleDateString() : '';
-                            return (
+                        /* 채팅 목록 */
+                        chatRooms.length === 0 ? (
+                            <div className="text-center py-10 text-gray-500 font-medium">진행 중인 문의가 없습니다.</div>
+                        ) : (
+                            chatRooms.map(room => (
                                 <div
-                                    key={app.id}
+                                    key={room.id}
                                     onClick={() => {
-                                        setSelectedApplicant(app);
+                                        setSelectedRoom(room);
+                                        setSelectedApplicant(null);
                                         setIsMobileDetailOpen(true);
                                     }}
-                                    className={`p-5 rounded-2xl cursor-pointer transition-all border ${selectedApplicant?.id === app.id ? 'bg-white border-[#111] shadow-[0_4px_15px_rgba(0,0,0,0.05)]' : 'bg-transparent border-transparent hover:border-gray-200 hover:bg-white'}`}
+                                    className={`p-5 rounded-2xl cursor-pointer transition-all border ${selectedRoom?.id === room.id ? 'bg-white border-[#111] shadow-[0_4px_15px_rgba(0,0,0,0.05)]' : 'bg-transparent border-transparent hover:border-gray-200 hover:bg-white'}`}
                                 >
-                                    <div className="flex justify-between items-start mb-2">
-                                        <h3 className="font-extrabold text-[#111] text-lg flex items-center gap-2">
-                                            {app.name}
-                                            <span className="text-xs font-bold text-gray-600 bg-gray-100 px-2 py-1 rounded-full">{app.age}세 · {app.gender}</span>
-                                        </h3>
-                                        <span className="text-xs text-gray-400 font-medium">{appliedAt}</span>
+                                    <div className="flex justify-between items-center mb-1">
+                                        <h3 className="font-extrabold text-[#111]">{room.name}</h3>
+                                        <span className="text-[10px] text-gray-400">{room.lastMessageTime?.toDate().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                                     </div>
-                                    <div className="flex flex-wrap gap-2 mt-3">
-                                        {(app.has_industry_exp === '있음' || app.exp_hotel === '유') && <span className="text-[11px] font-bold bg-amber-50 text-amber-700 px-2.5 py-1 rounded-lg border border-amber-100/50">동종경력</span>}
-                                        {(app.resumeUrl || app.resume_url) && <span className="text-[11px] font-bold bg-blue-50 text-blue-700 px-2.5 py-1 rounded-lg border border-blue-100/50">이력서 첨부</span>}
-                                        <span className="text-[11px] font-bold bg-gray-100 text-gray-700 px-2.5 py-1 rounded-lg">{app.duration || '기간미정'}</span>
+                                    <p className="text-xs text-gray-500 truncate">{room.lastMessage}</p>
+                                    <div className="mt-2 flex gap-1">
+                                        <span className="text-[10px] font-bold bg-gray-100 px-1.5 py-0.5 rounded text-gray-600">{room.age}세 · {room.gender}</span>
                                     </div>
                                 </div>
-                            );
-                        })
+                            ))
+                        )
                     )}
                 </div>
             </div>
@@ -207,6 +279,7 @@ const AdminPage = () => {
                 <div className="absolute bottom-[-10%] right-[-5%] w-[40%] h-[40%] bg-blue-50 rounded-full blur-[120px] pointer-events-none opacity-60" />
 
                 {selectedApplicant ? (
+                    /* 기존 지원서 상세보기 */
                     <div className="relative z-10 p-4 md:p-10 h-full overflow-y-auto w-full flex justify-center print:p-0 print:overflow-visible">
                         <div className="w-full max-w-4xl bg-white p-8 md:p-14 rounded-[32px] md:shadow-[0_20px_60px_-15px_rgba(0,0,0,0.05)] border border-white/60 h-max mb-10 print:bg-transparent print:border-none print:shadow-none print:p-0 print:text-black print:mb-0">
 
@@ -309,14 +382,63 @@ const AdminPage = () => {
                             </div>
                         </div>
                     </div>
+                ) : selectedRoom ? (
+                    /* 채팅창 모드 */
+                    <div className="flex-1 flex flex-col h-full bg-white relative z-10 overflow-hidden">
+                        {/* 채팅 헤더 */}
+                        <div className="p-6 border-b border-gray-100 flex justify-between items-center">
+                            <div>
+                                <h3 className="text-xl font-extrabold">{selectedRoom.name}님과의 대화</h3>
+                                <div className="flex gap-2 mt-1">
+                                    <span className="text-xs font-bold bg-gray-100 px-2 py-0.5 rounded text-gray-600">{selectedRoom.age}세 · {selectedRoom.gender} · {selectedRoom.phone}</span>
+                                </div>
+                            </div>
+                            <button onClick={() => setSelectedRoom(null)} className="md:hidden p-2 bg-gray-100 rounded-full"><X className="w-5 h-5"/></button>
+                        </div>
+                        
+                        {/* 메세지 목록 */}
+                        <div ref={chatScrollRef} className="flex-1 overflow-y-auto p-6 space-y-4 bg-gray-50/50">
+                            {currentChatMessages.map((msg: any) => (
+                                <div key={msg.id} className={`flex ${msg.sender === 'manager' ? 'justify-end' : 'justify-start'}`}>
+                                    <div className={`max-w-[70%] p-4 rounded-2xl text-sm font-medium shadow-sm ${msg.sender === 'manager' ? 'bg-[#111] text-white rounded-tr-none' : 'bg-white text-[#111] border border-gray-100 rounded-tl-none'}`}>
+                                        {msg.text}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+
+                        {/* 입력창 */}
+                        <div className="p-6 border-t border-gray-100 bg-white">
+                            <form 
+                                onSubmit={(e) => {
+                                    e.preventDefault();
+                                    if (adminInput.trim()) {
+                                        sendAdminMessage(adminInput, 'manager');
+                                        setAdminInput('');
+                                    }
+                                }}
+                                className="flex gap-3"
+                            >
+                                <input 
+                                    type="text" 
+                                    value={adminInput}
+                                    onChange={(e) => setAdminInput(e.target.value)}
+                                    placeholder="답장을 입력하세요..."
+                                    className="flex-1 bg-gray-100 border-none rounded-2xl px-6 py-4 outline-none focus:ring-1 focus:ring-[#111] transition-all font-medium"
+                                />
+                                <button className="bg-[#111] text-white px-6 py-4 rounded-2xl hover:bg-[#333] transition-all"><Send className="w-5 h-5"/></button>
+                            </form>
+                        </div>
+                    </div>
                 ) : (
                     <div className="relative z-10 flex-1 flex items-center justify-center text-gray-400 print:hidden bg-[#f3f4f6]">
                         <div className="text-center">
                             <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center mx-auto shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-white mb-6">
-                                <Mail className="w-10 h-10 text-gray-300" />
+                                {viewMode === 'applications' ? <Mail className="w-10 h-10 text-gray-300" /> : <MessageSquare className="w-10 h-10 text-gray-300" />}
                             </div>
-                            <p className="text-lg font-extrabold text-gray-500 tracking-tight">좌측 목록에서 지원자를 클릭해주세요</p>
-                            <p className="text-sm font-medium text-gray-400 mt-2">전체 지원서 세부 데이터를 확인할 수 있습니다.</p>
+                            <p className="text-lg font-extrabold text-gray-500 tracking-tight">
+                                {viewMode === 'applications' ? '좌측 목록에서 지원자를 클릭해주세요' : '좌측 목록에서 대화방을 선택해주세요'}
+                            </p>
                         </div>
                     </div>
                 )}
