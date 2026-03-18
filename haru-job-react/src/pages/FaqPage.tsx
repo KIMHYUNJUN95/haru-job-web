@@ -183,7 +183,7 @@ const FaqPage = () => {
                     <button onClick={() => navigate('/')} className="flex items-center gap-2 text-[#555] hover:text-[#111] transition-colors text-sm font-medium">
                         <ArrowLeft className="w-4 h-4" /> 돌아가기
                     </button>
-                    <span className="text-[15px] font-bold tracking-tight text-[#212322]">Aria Tokyo</span>
+                    <span className="text-[15px] font-bold tracking-tight text-[#212322]">Stay Ari Tokyo</span>
                     <div className="w-20" />
                 </div>
             </nav>
@@ -191,7 +191,7 @@ const FaqPage = () => {
             {/* 본문 */}
             <div className="pt-28 pb-20 px-6 max-w-[900px] mx-auto">
                 <h1 className="text-3xl md:text-4xl font-extrabold text-[#111] tracking-tight mb-3">자주 묻는 질문</h1>
-                <p className="text-gray-500 font-medium mb-12 text-sm">ARIA TOKYO 지원에 관한 궁금한 점을 확인하세요.</p>
+                <p className="text-gray-500 font-medium mb-12 text-sm">STAY ARI TOKYO 지원에 관한 궁금한 점을 확인하세요.</p>
 
                 <div className="space-y-8">
                     {faqData.map((cat, i) => (

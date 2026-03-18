@@ -12,10 +12,10 @@ interface NoticeItem {
 const noticeData: NoticeItem[] = [
     {
         date: '2026.03.01',
-        title: '[안내] ARIA TOKYO 채용 사이트 오픈 및 3월 채용 시작',
-        content: `안녕하세요. ARIA TOKYO입니다.
+        title: '[안내] STAY ARI TOKYO 채용 사이트 오픈 및 3월 채용 시작',
+        content: `안녕하세요. STAY ARI TOKYO입니다.
 
-도쿄 신주쿠 지역을 중심으로 럭셔리 숙박 경험을 제공하는 ARIA TOKYO에서
+도쿄 신주쿠 지역을 중심으로 럭셔리 숙박 경험을 제공하는 STAY ARI TOKYO에서
 2026년 3월부터 새로운 스태프 채용을 시작합니다.
 
 저희와 함께 전 세계 여행자들에게 쾌적하고 잊지 못할 경험을 선사할
@@ -28,7 +28,7 @@ const noticeData: NoticeItem[] = [
     {
         date: '2026.03.01',
         title: '[채용] 객실 클리닝 스태프 모집 안내',
-        content: `현재 ARIA TOKYO에서 '객실 클리닝 스태프'를 모집 중입니다.
+        content: `현재 STAY ARI TOKYO에서 '객실 클리닝 스태프'를 모집 중입니다.
 
 ■ 주요 업무
 - 객실 클리닝 (메인 업무)
@@ -37,7 +37,7 @@ const noticeData: NoticeItem[] = [
 
 ■ 근무 조건
 - 시급: ¥1,250 ~ ¥1,700 (경력 및 업무 능숙도에 따라 차등 지급)
-- 근무지: 신주쿠 지역 내 ARIA TOKYO 숙박 시설 (건물별 상이)
+- 근무지: 신주쿠 지역 내 STAY ARI TOKYO 숙박 시설 (건물별 상이)
 - 근무 시작: 오전 9:45
 
 초보자도 환영하며, 나이와 일본어 실력에 제한이 없습니다.
@@ -46,7 +46,7 @@ const noticeData: NoticeItem[] = [
     {
         date: '2026.03.01',
         title: '[필독] 지원서 접수 시 유의사항 안내',
-        content: `ARIA TOKYO 채용 지원 시 다음 유의사항을 반드시 확인해 주시기 바랍니다.
+        content: `STAY ARI TOKYO 채용 지원 시 다음 유의사항을 반드시 확인해 주시기 바랍니다.
 
 1. 비자 요건
 - 일본 내 취업 활동이 가능한 비자를 소지해야 합니다.
@@ -108,14 +108,14 @@ const NoticePage = () => {
                     <button onClick={() => navigate('/')} className="flex items-center gap-2 text-[#555] hover:text-[#111] transition-colors text-sm font-medium">
                         <ArrowLeft className="w-4 h-4" /> 돌아가기
                     </button>
-                    <span className="text-[15px] font-bold tracking-tight text-[#212322]">Aria Tokyo</span>
+                    <span className="text-[15px] font-bold tracking-tight text-[#212322]">Stay Ari Tokyo</span>
                     <div className="w-20" />
                 </div>
             </nav>
 
             <div className="pt-28 pb-20 px-6 max-w-[900px] mx-auto">
                 <h1 className="text-3xl md:text-4xl font-extrabold text-[#111] tracking-tight mb-3">공지사항</h1>
-                <p className="text-gray-500 font-medium mb-12 text-sm">ARIA TOKYO의 주요 채용 및 운영 안내 사항입니다.</p>
+                <p className="text-gray-500 font-medium mb-12 text-sm">STAY ARI TOKYO의 주요 채용 및 운영 안내 사항입니다.</p>
 
                 <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_2px_12px_rgba(0,0,0,0.03)] overflow-hidden">
                     <div className="px-5 sm:px-7 py-3">

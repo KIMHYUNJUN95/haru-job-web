@@ -23,7 +23,7 @@ const jobPostings: JobPosting[] = [
         startTime: '오전 9:45',
         type: '아르바이트',
         tags: ['숙박업', '클리닝', '신주쿠'],
-        description: '신주쿠 지역 내 ARIA TOKYO 숙박 시설의 객실 클리닝 및 건물 관리 업무를 담당할 스태프를 모집합니다.',
+        description: '신주쿠 지역 내 STAY ARI TOKYO 숙박 시설의 객실 클리닝 및 건물 관리 업무를 담당할 스태프를 모집합니다.',
         tasks: [
             '객실 클리닝 (메인 업무)',
             '비품 관리 및 재고 파악',
@@ -48,7 +48,7 @@ const JobListingsPage = () => {
                     <button onClick={() => navigate('/')} className="flex items-center gap-2 text-[#555] hover:text-[#111] transition-colors text-sm font-medium">
                         <ArrowLeft className="w-4 h-4" /> 돌아가기
                     </button>
-                    <span className="text-[15px] font-bold tracking-tight text-[#212322]">Aria Tokyo</span>
+                    <span className="text-[15px] font-bold tracking-tight text-[#212322]">Stay Ari Tokyo</span>
                     <div className="w-20" />
                 </div>
             </nav>

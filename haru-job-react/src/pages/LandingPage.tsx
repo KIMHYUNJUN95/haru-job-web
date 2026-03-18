@@ -183,8 +183,8 @@ const LandingPage = () => {
             <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-xl border-b border-white/20 shadow-[0_4px_30px_rgba(0,0,0,0.03)]">
                 <div className="max-w-[1400px] mx-auto px-4 sm:px-6 md:px-10 h-16 flex items-center justify-between">
                     <div className="flex items-center">
-                        {/* ARIA TOKYO 로고 구역 (텍스트만) */}
-                        <span className="text-[14px] md:text-[15px] font-extrabold tracking-widest text-[#212322] font-serif uppercase">Aria Tokyo</span>
+                        {/* STAY ARI TOKYO 로고 구역 (텍스트만) */}
+                        <span className="text-[14px] md:text-[15px] font-extrabold tracking-widest text-[#212322] font-serif uppercase">Stay Ari Tokyo</span>
                         {todayVisitors > 0 && (
                             <span className="text-[9px] sm:text-[10px] font-medium text-[#aaa] tracking-wide ml-1">TODAY {todayVisitors}</span>
                         )}
@@ -230,7 +230,7 @@ const LandingPage = () => {
                         className="max-w-xl md:max-w-3xl px-2 mb-8 md:mb-16"
                     >
                         <h1 className="text-white font-extrabold leading-[1.2] tracking-tight mb-4 md:mb-6 text-4xl sm:text-5xl md:text-6xl break-keep drop-shadow-2xl">
-                            ARIA TOKYO,<br />
+                            STAY ARI TOKYO,<br />
                             도쿄의 럭셔리를<br className="sm:hidden" /> 완성하다.
                         </h1>
                         <p className="text-white/80 text-sm sm:text-base md:text-lg font-medium tracking-tight leading-relaxed max-w-lg break-keep drop-shadow-md border-l-2 border-blue-500 pl-4">
@@ -258,7 +258,7 @@ const LandingPage = () => {
                                     채용 공고 <span className="transform transition-transform group-hover:translate-x-1 ml-0.5 sm:ml-1 font-light opacity-90">→</span>
                                 </h3>
                                 <p className="text-[10px] sm:text-[12px] md:text-[13px] text-white/90 break-keep mt-0.5 sm:mt-1 font-medium leading-tight sm:leading-normal">
-                                    현재 진행 중인 ARIA TOKYO의 포지션 확인
+                                    현재 진행 중인 STAY ARI TOKYO의 포지션 확인
                                 </p>
                             </div>
                             {/* 2번 탭: 공지사항 */}
@@ -270,7 +270,7 @@ const LandingPage = () => {
                                     공지사항 <span className="transform transition-transform group-hover:translate-x-1 ml-0.5 sm:ml-1 font-light opacity-60">→</span>
                                 </h3>
                                 <p className="text-[10px] sm:text-[12px] md:text-[13px] text-gray-400 break-keep mt-0.5 sm:mt-1 font-medium leading-tight sm:leading-normal">
-                                    ARIA TOKYO의 새로운 소식
+                                    STAY ARI TOKYO의 새로운 소식
                                 </p>
                             </div>
                         </div>
@@ -326,7 +326,7 @@ const LandingPage = () => {
                             >
                                 <span className="w-12 md:w-16 h-[1px] bg-[#00635B] inline-block origin-left"></span>
                                 <p className="text-[#00635B] tracking-[0.3em] text-[10px] md:text-[11px] font-bold uppercase">
-                                    Why Stay Ari
+                                    Why Stay Ari Tokyo
                                 </p>
                             </motion.div>
                             
@@ -362,7 +362,7 @@ const LandingPage = () => {
                             <div className="absolute top-0 left-0 w-[2px] h-full bg-gradient-to-b from-[#00635B] to-transparent hidden xl:block"></div>
                             <p className="text-[#555] text-base md:text-[17px] lg:text-[19px] leading-[1.8] break-keep font-medium xl:pl-8">
                                 우리는 단순히 방을 비우고 치우는 것을 넘어, 가장 완벽하게 정제된 <strong className="text-[#111] font-bold border-b border-[#111]/30 pb-0.5">최상의 컨디션</strong>을 재창조합니다. 
-                                <br className="hidden md:block"/>STAY ARI와 함께 글로벌 라이프스타일의 새로운 기준을 만들어가세요.
+                                <br className="hidden md:block"/>STAY ARI TOKYO와 함께 글로벌 라이프스타일의 새로운 기준을 만들어가세요.
                             </p>
                         </motion.div>
                     </div>
@@ -466,7 +466,7 @@ const LandingPage = () => {
             {/* ═══ Premium Rooms Minimal Gallery (모바일 전용) ═══ */}
             <section className="anim block md:hidden w-full px-6 py-20 bg-[#ffffff] select-none text-center">
                 <div className="mb-14">
-                    <p className="section-label mb-2 text-[#00635B] tracking-widest text-[11px] font-bold">STAY ARI ROOMS</p>
+                    <p className="section-label mb-2 text-[#00635B] tracking-widest text-[11px] font-bold">STAY ARI TOKYO ROOMS</p>
                     <h2 className="text-3xl font-extrabold tracking-tight text-[#111] leading-tight mb-2 font-serif italic">
                         Curated Spaces for Your Taste
                     </h2>
@@ -542,7 +542,7 @@ const LandingPage = () => {
                                 transition={{ duration: 1, ease: [0.25, 1, 0.5, 1] }}
                             >
                                 <span className="w-16 h-[1.5px] bg-gradient-to-r from-[#00635B] to-transparent inline-block"></span>
-                                STAY ARI ROOMS
+                                STAY ARI TOKYO ROOMS
                             </motion.p>
                             <h2 className="text-5xl lg:text-7xl xl:text-[5.5rem] font-extrabold tracking-tight text-[#111] leading-[1.05] font-serif pr-8 overflow-hidden">
                                 <motion.span 
@@ -684,7 +684,7 @@ const LandingPage = () => {
             <section className="anim w-full px-6 py-28 bg-[#fdfdfd] flex flex-col items-center justify-center text-center">
                 <div className="max-w-xl">
                     <h2 className="text-[2rem] md:text-[3rem] font-extrabold text-[#212322] leading-tight mb-6 break-keep">
-                        Stay Ari와 함께<br />새로운 도약을 시작하세요.
+                        Stay Ari Tokyo와 함께<br />새로운 도약을 시작하세요.
                     </h2>
                     <p className="text-[#666] text-sm md:text-base mb-10 break-keep">
                         우리는 단순한 숙소가 아닌, 여행자의 삶에 영감을 주는 공간을 만듭니다.<br />
@@ -696,9 +696,9 @@ const LandingPage = () => {
 
             {/* ─── Ultra-Premium Footer ─── */}
             <footer className="w-full pt-20 md:pt-32 pb-12 md:pb-16 px-6 md:px-16 bg-white border-t border-gray-100 relative overflow-hidden">
-                {/* 대형 배경 텍스트 (ARIA TOKYO) */}
+                {/* 대형 배경 텍스트 (STAY ARI TOKYO) */}
                 <div className="absolute top-10 right-10 md:right-40 text-[7rem] md:text-[14rem] lg:text-[18rem] font-black text-[#f8f9fa] select-none pointer-events-none tracking-tighter italic whitespace-nowrap opacity-80">
-                    ARIA TOKYO
+                    STAY ARI TOKYO
                 </div>
 
                 <div className="max-w-[1600px] mx-auto relative z-10">
@@ -713,7 +713,7 @@ const LandingPage = () => {
                                         viewport={{ once: true }}
                                         className="flex items-center justify-center lg:justify-start gap-4 mb-6"
                                     >
-                                        <span className="text-[24px] font-black text-[#212322] tracking-widest font-serif uppercase">Aria Tokyo</span>
+                                        <span className="text-[24px] font-black text-[#212322] tracking-widest font-serif uppercase">Stay Ari Tokyo</span>
                                         <span className="w-8 h-[1px] bg-[#212322]/20"></span>
                                         <span className="text-[10px] font-bold tracking-[0.3em] text-[#D4AF37] uppercase">Tokyo Luxury</span>
                                     </motion.div>

@@ -26,7 +26,7 @@ const JobDetailPage = () => {
                     <button onClick={() => navigate('/jobs')} className="flex items-center gap-2 text-[#555] hover:text-[#111] transition-colors text-sm font-medium">
                         <ArrowLeft className="w-4 h-4" /> 채용공고
                     </button>
-                    <span className="text-[15px] font-bold tracking-tight text-[#212322]">Aria Tokyo</span>
+                    <span className="text-[15px] font-bold tracking-tight text-[#212322]">Stay Ari Tokyo</span>
                     <div className="w-20" />
                 </div>
             </nav>

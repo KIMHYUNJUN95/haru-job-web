@@ -10,7 +10,7 @@ const TermsPage = () => {
                     <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-[#555] hover:text-[#111] transition-colors text-sm font-medium">
                         <ArrowLeft className="w-4 h-4" /> 돌아가기
                     </button>
-                    <p className="text-[#666] leading-relaxed mb-6">Welcome to ARIA TOKYO. By accessing or using our services, you agree to be bound by the following terms and conditions.</p>
+                    <p className="text-[#666] leading-relaxed mb-6">Welcome to STAY ARI TOKYO. By accessing or using our services, you agree to be bound by the following terms and conditions.</p>
                     <div className="w-20" />
                 </div>
             </nav>
@@ -22,7 +22,7 @@ const TermsPage = () => {
                 <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_2px_12px_rgba(0,0,0,0.03)] p-8 md:p-12 space-y-10 text-[14px] text-gray-700 leading-relaxed font-medium">
                     <section>
                         <h2 className="text-lg font-extrabold text-[#111] mb-4">제1조 (목적)</h2>
-                        <p>본 약관은 ARIA TOKYO(이하 "회사")가 운영하는 채용 웹사이트(이하 "사이트")에서 제공하는 서비스의 이용 조건 및 절차에 관한 사항을 규정함을 목적으로 합니다.</p>
+                        <p>본 약관은 STAY ARI TOKYO(이하 "회사")가 운영하는 채용 웹사이트(이하 "사이트")에서 제공하는 서비스의 이용 조건 및 절차에 관한 사항을 규정함을 목적으로 합니다.</p>
                     </section>
 
                     <section>

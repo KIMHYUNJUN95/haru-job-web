@@ -10,7 +10,7 @@ const PrivacyPage = () => {
                     <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-[#555] hover:text-[#111] transition-colors text-sm font-medium">
                         <ArrowLeft className="w-4 h-4" /> 돌아가기
                     </button>
-                    <span className="text-[15px] font-bold tracking-tight text-[#212322]">Aria Tokyo</span>
+                    <span className="text-[15px] font-bold tracking-tight text-[#212322]">Stay Ari Tokyo</span>
                     <div className="w-20" />
                 </div>
             </nav>
@@ -138,7 +138,7 @@ const PrivacyPage = () => {
                         <h2 className="text-lg font-extrabold text-[#111] mb-4">11. 개인정보 보호 책임자</h2>
                         <p>개인정보 보호와 관련한 문의 사항은 아래 연락처로 문의해 주시기 바랍니다.</p>
                         <div className="mt-3 bg-gray-50 rounded-xl p-5 text-[13px]">
-                            <p><strong>회사명:</strong> ARIA TOKYO</p>
+                            <p><strong>회사명:</strong> STAY ARI TOKYO</p>
                             <p className="mt-1"><strong>소재지:</strong> 〒162-0065 東京都 新宿区 住吉町 2-10 7階</p>
                             <p className="mt-1"><strong>연락:</strong> 카카오톡을 통한 문의</p>
                         </div>
