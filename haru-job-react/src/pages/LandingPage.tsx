@@ -2,13 +2,10 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { X, ArrowUpRight, MessageCircle } from 'lucide-react';
+import { ArrowUpRight } from 'lucide-react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { db } from '../firebase';
-import { collection, addDoc, serverTimestamp, setDoc, doc, getDoc, updateDoc, increment } from 'firebase/firestore';
-import { sendSlackNotification } from '../utils/slack';
-import InquiryForm from '../components/Chat/InquiryForm';
-import ChatWindow from '../components/Chat/ChatWindow';
+import { setDoc, doc, getDoc, updateDoc, increment } from 'firebase/firestore';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -145,9 +142,6 @@ const LandingPage = () => {
         trackVisit();
     }, []);
 
-    const [isInquiryOpen, setIsInquiryOpen] = useState(false);
-    const [roomId, setRoomId] = useState<string | null>(localStorage.getItem('chatRoomId'));
-    const [applicantName, setApplicantName] = useState<string>(localStorage.getItem('applicantName') || '');
     const [tokyoTime, setTokyoTime] = useState<string>('');
     useEffect(() => {
         const updateTime = () => {
@@ -175,28 +169,6 @@ const LandingPage = () => {
         });
     }, []);
 
-    const handleInquirySubmit = async (data: { name: string; phone: string; gender: string; age: string }) => {
-        try {
-            const roomRef = await addDoc(collection(db, 'chat_rooms'), {
-                ...data,
-                createdAt: serverTimestamp(),
-                lastMessage: '상담이 시작되었습니다.',
-                lastMessageTime: serverTimestamp(),
-                status: 'open'
-            });
-
-            const newRoomId = roomRef.id;
-            localStorage.setItem('chatRoomId', newRoomId);
-            localStorage.setItem('applicantName', data.name);
-            setRoomId(newRoomId);
-            setApplicantName(data.name);
-
-            await sendSlackNotification(`🔔 새로운 채용 문의가 도착했습니다!\n이름: ${data.name}\n나이: ${data.age}세\n성별: ${data.gender}\n연락처: ${data.phone}`);
-
-        } catch (error) {
-            console.error('Error creating chat room:', error);
-        }
-    };
 
     return (
         <div className="bg-white min-h-screen">
@@ -243,10 +215,6 @@ const LandingPage = () => {
                             <div className="flex-1 bg-[#1e293b] text-white p-4 sm:p-5 md:p-6 cursor-pointer hover:bg-[#334155] transition-colors group sm:border-l border-t sm:border-t-0 border-white/10" onClick={() => navigate('/notice')}>
                                 <h3 className="text-sm sm:text-lg md:text-xl font-bold mb-1 flex items-center gap-1.5 sm:gap-2">공지사항 <span className="transform transition-transform group-hover:translate-x-1">→</span></h3>
                                 <p className="text-[10px] sm:text-[12px] md:text-[13px] text-gray-400">새로운 소식</p>
-                            </div>
-                            <div className="flex-1 bg-[#1e293b] text-white p-4 sm:p-5 md:p-6 cursor-pointer hover:bg-[#334155] transition-colors group sm:border-l border-t sm:border-t-0 border-white/10" onClick={() => setIsInquiryOpen(true)}>
-                                <h3 className="text-sm sm:text-lg md:text-xl font-bold mb-1 flex items-center gap-1.5 sm:gap-2">채용 문의 <span className="transform transition-transform group-hover:translate-x-1">→</span></h3>
-                                <p className="text-[10px] sm:text-[12px] md:text-[13px] text-gray-400">1:1 실시간 상담</p>
                             </div>
                         </div>
                     </div>
@@ -388,7 +356,7 @@ const LandingPage = () => {
                             <div className="space-y-6">
                                 <h4 className="text-[11px] font-extrabold tracking-[0.3em] text-[#212322] uppercase opacity-40">Legal</h4>
                                 <ul className="space-y-4">
-                                    {['Terms', 'Privacy', 'Admin'].map((item) => (
+                                    {['Terms', 'Privacy'].map((item) => (
                                         <li key={item}><button onClick={() => navigate(`/${item.toLowerCase()}`)} className="text-[14px] font-semibold text-[#555] hover:text-[#212322] transition-colors">{item}</button></li>
                                     ))}
                                 </ul>
@@ -411,16 +379,6 @@ const LandingPage = () => {
                 </div>
             </footer>
 
-            {/* Floating Chat Widget */}
-            <div className="fixed bottom-6 right-6 z-[60] flex flex-col items-end gap-4 print:hidden">
-                <div className={`w-[calc(100vw-3rem)] sm:w-[380px] h-[550px] sm:h-[650px] max-w-[400px] mb-2 transition-all duration-300 origin-bottom-right ${isInquiryOpen ? 'scale-100 opacity-100' : 'scale-75 opacity-0 pointer-events-none'}`}>
-                    {roomId ? <ChatWindow roomId={roomId} applicantName={applicantName} onClose={() => setIsInquiryOpen(false)} /> : <InquiryForm onSubmit={handleInquirySubmit} onClose={() => setIsInquiryOpen(false)} />}
-                </div>
-                <button onClick={() => setIsInquiryOpen(!isInquiryOpen)} className="w-14 h-14 bg-[#111] text-white rounded-full flex items-center justify-center shadow-2xl hover:scale-110 active:scale-95 group relative">
-                    {isInquiryOpen ? <X className="w-6 h-6" /> : <MessageCircle className="w-6 h-6" />}
-                    {!isInquiryOpen && <span className="absolute right-full mr-4 bg-white text-[#111] px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap shadow-xl opacity-0 group-hover:opacity-100 transition-opacity">담당자와 실시간 상담</span>}
-                </button>
-            </div>
         </div>
     );
 };
