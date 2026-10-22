@@ -22,3 +22,12 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# local secrets and deploy logs
+.env
+.env.*
+functions/.env*
+functions/.secret.local
+deploy_err*.txt
+deploy_output.txt
+.firebase/

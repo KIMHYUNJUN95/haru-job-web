@@ -61,8 +61,8 @@ const JobDetailPage = () => {
                         <div className="flex items-start gap-3 p-4 bg-gray-50 rounded-xl">
                             <Clock className="w-5 h-5 text-gray-400 mt-0.5 shrink-0" />
                             <div>
-                                <p className="text-[12px] text-gray-400 font-bold mb-1">근무 시작</p>
-                                <p className="text-[14px] text-[#111] font-bold">{job.startTime}</p>
+                                <p className="text-[12px] text-gray-400 font-bold mb-1">근무 시간</p>
+                                <p className="text-[14px] text-[#111] font-bold">{job.workTime}</p>
                             </div>
                         </div>
                     </div>
@@ -76,23 +76,109 @@ const JobDetailPage = () => {
                             <div key={i} className="flex items-center gap-3">
                                 <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0" />
                                 <span className="text-[14px] text-gray-700 font-medium">{task}</span>
-                                {i === 0 && <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100/50">메인</span>}
+                                {job.employmentType === 'part-time' && i === 0 && <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100/50">메인</span>}
                             </div>
                         ))}
                     </div>
                 </div>
 
-                {/* 참고사항 카드 */}
+                {/* 지원 자격 카드 */}
                 <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_2px_12px_rgba(0,0,0,0.03)] p-7 md:p-8">
-                    <h2 className="text-lg font-extrabold text-[#111] mb-6 tracking-tight">참고사항</h2>
+                    <h2 className="text-lg font-extrabold text-[#111] mb-6 tracking-tight">지원 자격</h2>
                     <ul className="space-y-3 text-[14px] text-gray-600 font-medium">
-                        <li className="flex items-start gap-2"><span className="text-gray-400">•</span>나이 제한 없음 (20대~50대 근무 중)</li>
-                        <li className="flex items-start gap-2"><span className="text-gray-400">•</span>일본어 실력 제한 없음</li>
-                        <li className="flex items-start gap-2"><span className="text-gray-400">•</span>유니폼 상의 지급</li>
-                        <li className="flex items-start gap-2"><span className="text-gray-400">•</span>교통비 월 최대 3만 엔 지원</li>
-                        <li className="flex items-start gap-2"><span className="text-gray-400">•</span>견습 기간 40시간 (2인 1조)</li>
-                        <li className="flex items-start gap-2"><span className="text-gray-400">•</span>비자 기간 3개월 이상 필수</li>
+                        {job.requirements.map((item, index) => (
+                            <li key={index} className="flex items-start gap-2">
+                                <span className="text-gray-400">•</span>
+                                {item}
+                            </li>
+                        ))}
                     </ul>
+                </div>
+
+                <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_2px_12px_rgba(0,0,0,0.03)] p-7 md:p-8 mt-6">
+                    <h2 className="text-lg font-extrabold text-[#111] mb-6 tracking-tight">근무 형태</h2>
+                    <ul className="space-y-3 text-[14px] text-gray-600 font-medium">
+                        {job.workStyle.map((item, index) => (
+                            <li key={index} className="flex items-start gap-2">
+                                <span className="text-gray-400">•</span>
+                                {item}
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+
+                <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_2px_12px_rgba(0,0,0,0.03)] p-7 md:p-8 mt-6">
+                    <h2 className="text-lg font-extrabold text-[#111] mb-6 tracking-tight">근무지역</h2>
+                    <ul className="space-y-3 text-[14px] text-gray-600 font-medium">
+                        {job.locationDetails.map((item, index) => (
+                            <li key={index} className="flex items-start gap-2">
+                                <span className="text-gray-400">•</span>
+                                {item}
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+
+                <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_2px_12px_rgba(0,0,0,0.03)] p-7 md:p-8 mt-6">
+                    <h2 className="text-lg font-extrabold text-[#111] mb-6 tracking-tight">급여 및 복리후생</h2>
+                    <ul className="space-y-3 text-[14px] text-gray-600 font-medium">
+                        {job.benefits.map((item, index) => (
+                            <li key={index} className="flex items-start gap-2">
+                                <span className="text-gray-400">•</span>
+                                {item}
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+
+                {job.visaSupport && (
+                    <div className="bg-white rounded-2xl border border-blue-100 shadow-[0_2px_12px_rgba(0,0,0,0.03)] p-7 md:p-8 mt-6">
+                        <h2 className="text-lg font-extrabold text-[#111] mb-6 tracking-tight">비자 지원</h2>
+                        <ul className="space-y-3 text-[14px] text-gray-600 font-medium">
+                            {job.visaSupport.map((item, index) => (
+                                <li key={index} className="flex items-start gap-2">
+                                    <span className="text-blue-500">•</span>
+                                    {item}
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                )}
+
+                {job.applicationInfo && (
+                    <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_2px_12px_rgba(0,0,0,0.03)] p-7 md:p-8 mt-6">
+                        <h2 className="text-lg font-extrabold text-[#111] mb-6 tracking-tight">지원 서류</h2>
+                        <ul className="space-y-3 text-[14px] text-gray-600 font-medium">
+                            {job.applicationInfo.map((item, index) => (
+                                <li key={index} className="flex items-start gap-2">
+                                    <span className="text-gray-400">•</span>
+                                    {item}
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                )}
+
+                <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_2px_12px_rgba(0,0,0,0.03)] p-7 md:p-8 mt-6">
+                    <h2 className="text-lg font-extrabold text-[#111] mb-6 tracking-tight">회사 소개</h2>
+                    <ul className="space-y-3 text-[14px] text-gray-600 font-medium">
+                        {job.companyInfo.map((item, index) => (
+                            <li key={index} className="flex items-start gap-2">
+                                <span className="text-gray-400">•</span>
+                                {item}
+                            </li>
+                        ))}
+                    </ul>
+                    {job.companyWebsite && (
+                        <a
+                            href={job.companyWebsite}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="inline-flex mt-6 text-[14px] font-bold text-blue-600 hover:text-blue-700 hover:underline"
+                        >
+                            회사 홈페이지에서 객실 및 시설 확인하기
+                        </a>
+                    )}
                 </div>
             </div>
 
@@ -104,7 +190,7 @@ const JobDetailPage = () => {
                         <p className="text-[12px] text-gray-400 font-medium">{job.salary}</p>
                     </div>
                     <button
-                        onClick={() => navigate('/apply')}
+                        onClick={() => navigate(`/apply?job=${job.id}`)}
                         className="w-full md:w-auto bg-[#111] hover:bg-[#333] text-white font-bold py-4 px-10 rounded-2xl transition-all active:scale-95 text-[15px] shadow-[0_4px_15px_rgba(0,0,0,0.1)]"
                     >
                         지원하기

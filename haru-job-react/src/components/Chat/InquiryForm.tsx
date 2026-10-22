@@ -20,7 +20,7 @@ const InquiryForm = ({ onSubmit, onClose }: InquiryFormProps) => {
     };
 
     return (
-        <div className="flex flex-col h-full bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
+        <div className="fixed inset-0 z-[100] md:relative md:inset-auto flex flex-col h-full bg-white md:rounded-2xl shadow-xl overflow-hidden md:border border-gray-100 animate-in fade-in slide-in-from-bottom-4 duration-300">
             <div className="bg-[#111] p-4 flex justify-between items-center text-white">
                 <h3 className="font-serif font-bold tracking-tight">Stay Ari Tokyo 채용 문의</h3>
                 <button onClick={onClose} className="p-1 hover:bg-white/10 rounded-full transition-colors">
@@ -42,7 +42,7 @@ const InquiryForm = ({ onSubmit, onClose }: InquiryFormProps) => {
                             value={name}
                             onChange={(e) => setName(e.target.value)}
                             required
-                            className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-transparent rounded-xl focus:bg-white focus:border-gray-200 outline-none transition-all text-sm font-medium"
+                            className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-transparent rounded-xl focus:bg-white focus:border-gray-200 outline-none transition-all text-base font-medium placeholder:text-sm"
                         />
                     </div>
 
@@ -54,7 +54,7 @@ const InquiryForm = ({ onSubmit, onClose }: InquiryFormProps) => {
                             value={phone}
                             onChange={(e) => setPhone(e.target.value)}
                             required
-                            className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-transparent rounded-xl focus:bg-white focus:border-gray-200 outline-none transition-all text-sm font-medium"
+                            className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-transparent rounded-xl focus:bg-white focus:border-gray-200 outline-none transition-all text-base font-medium placeholder:text-sm"
                         />
                     </div>
 
@@ -65,7 +65,7 @@ const InquiryForm = ({ onSubmit, onClose }: InquiryFormProps) => {
                                 value={gender}
                                 onChange={(e) => setGender(e.target.value)}
                                 required
-                                className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-transparent rounded-xl focus:bg-white focus:border-gray-200 outline-none transition-all text-sm font-medium appearance-none"
+                                className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-transparent rounded-xl focus:bg-white focus:border-gray-200 outline-none transition-all text-base font-medium appearance-none"
                             >
                                 <option value="">성별</option>
                                 <option value="남성">남성</option>
@@ -80,7 +80,7 @@ const InquiryForm = ({ onSubmit, onClose }: InquiryFormProps) => {
                                 value={age}
                                 onChange={(e) => setAge(e.target.value)}
                                 required
-                                className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-transparent rounded-xl focus:bg-white focus:border-gray-200 outline-none transition-all text-sm font-medium"
+                                className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-transparent rounded-xl focus:bg-white focus:border-gray-200 outline-none transition-all text-base font-medium placeholder:text-sm"
                             />
                         </div>
                     </div>

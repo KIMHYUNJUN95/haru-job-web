@@ -3,10 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { X, ArrowUpRight, MessageCircle } from 'lucide-react';
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { motion, AnimatePresence, useScroll, useTransform } from 'framer-motion';
 import { db } from '../firebase';
-import { collection, addDoc, serverTimestamp, setDoc, doc, getDoc, updateDoc, increment } from 'firebase/firestore';
-import { sendSlackNotification } from '../utils/slack';
+import { collection, addDoc, serverTimestamp, setDoc, doc, getDoc, updateDoc, increment, onSnapshot, query, where } from 'firebase/firestore';
+
 import InquiryForm from '../components/Chat/InquiryForm';
 import ChatWindow from '../components/Chat/ChatWindow';
 
@@ -147,8 +147,109 @@ const LandingPage = () => {
 
     const [isInquiryOpen, setIsInquiryOpen] = useState(false);
     const [roomId, setRoomId] = useState<string | null>(localStorage.getItem('chatRoomId'));
-    const [applicantName, setApplicantName] = useState<string>(localStorage.getItem('applicantName') || '');
     const [tokyoTime, setTokyoTime] = useState<string>('');
+    const [, setUnreadCount] = useState(0);
+    const [roomUnreadCount, setRoomUnreadCount] = useState<number | null>(null);
+    const [messageUnreadCount, setMessageUnreadCount] = useState(0);
+    const unreadBadgeCount = roomId ? (roomUnreadCount ?? messageUnreadCount) : 0;
+    useEffect(() => {
+        const restoreExistingRoom = async () => {
+            const storedRoomId = localStorage.getItem('chatRoomId');
+            if (storedRoomId) {
+                try {
+                    const roomDoc = await getDoc(doc(db, 'chat_rooms', storedRoomId));
+                    if (roomDoc.exists()) {
+                        setRoomId(storedRoomId);
+                    } else {
+                        localStorage.removeItem('chatRoomId');
+                        setRoomId(null);
+                    }
+                } catch (err) {
+                    console.error('Existing chat room restore failed:', err);
+                }
+            }
+        };
+        restoreExistingRoom();
+    }, []);
+
+    // 미확인 메시지 감지 (지원자용)
+    useEffect(() => {
+        if (!roomId) return;
+
+        const q = query(
+            collection(db, 'chat_rooms', roomId, 'messages'),
+            where('sender', '==', 'manager')
+        );
+
+        const unsubscribe = onSnapshot(
+            q,
+            (snapshot) => {
+                setUnreadCount(
+                    snapshot.docs.filter((messageDoc) => messageDoc.data().isRead !== true).length
+                );
+            },
+            (error) => {
+                console.error('Unread message listener failed:', error);
+                setUnreadCount(0);
+            }
+        );
+
+        return () => unsubscribe();
+    }, [roomId]);
+
+    useEffect(() => {
+        if (!roomId) {
+            return;
+        }
+
+        const roomRef = doc(db, 'chat_rooms', roomId);
+        const unsubscribe = onSnapshot(
+            roomRef,
+            (snapshot) => {
+                if (!snapshot.exists()) {
+                    setRoomUnreadCount(null);
+                    return;
+                }
+
+                const data = snapshot.data();
+                setRoomUnreadCount(typeof data.unreadCountUser === 'number' ? data.unreadCountUser : null);
+            },
+            (error) => {
+                console.error('Room unread listener failed:', error);
+                setRoomUnreadCount(null);
+            }
+        );
+
+        return () => unsubscribe();
+    }, [roomId]);
+
+    useEffect(() => {
+        if (!roomId) {
+            return;
+        }
+
+        const q = query(
+            collection(db, 'chat_rooms', roomId, 'messages'),
+            where('sender', '==', 'manager')
+        );
+
+        const unsubscribe = onSnapshot(
+            q,
+            (snapshot) => {
+                setMessageUnreadCount(
+                    snapshot.docs.filter((messageDoc) => messageDoc.data().isRead !== true).length
+                );
+            },
+            (error) => {
+                console.error('Unread message listener failed:', error);
+                setMessageUnreadCount(0);
+            }
+        );
+
+        return () => unsubscribe();
+    }, [roomId]);
+
+
     useEffect(() => {
         const updateTime = () => {
             const now = new Date();
@@ -182,6 +283,7 @@ const LandingPage = () => {
                 createdAt: serverTimestamp(),
                 lastMessage: '상담이 시작되었습니다.',
                 lastMessageTime: serverTimestamp(),
+                lastSenderRole: 'user',
                 status: 'open'
             });
 
@@ -189,9 +291,10 @@ const LandingPage = () => {
             localStorage.setItem('chatRoomId', newRoomId);
             localStorage.setItem('applicantName', data.name);
             setRoomId(newRoomId);
-            setApplicantName(data.name);
+            setRoomUnreadCount(0);
+            setMessageUnreadCount(0);
 
-            await sendSlackNotification(`🔔 새로운 채용 문의가 도착했습니다!\n이름: ${data.name}\n나이: ${data.age}세\n성별: ${data.gender}\n연락처: ${data.phone}`);
+
 
         } catch (error) {
             console.error('Error creating chat room:', error);
@@ -203,18 +306,23 @@ const LandingPage = () => {
 
             {/* ─── Top Nav ─── */}
             <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-xl border-b border-white/20 shadow-[0_4px_30px_rgba(0,0,0,0.03)]">
-                <div className="max-w-[1400px] mx-auto px-4 sm:px-6 md:px-10 h-16 flex items-center justify-between">
+                <div className="max-w-[1600px] mx-auto px-4 sm:px-6 md:px-10 h-16 flex items-center justify-between">
                     <div className="flex items-center">
-                        <span className="text-[14px] md:text-[15px] font-extrabold tracking-widest text-[#212322] font-serif uppercase">Stay Ari Tokyo</span>
+                        <button 
+                            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                            className="text-[14px] md:text-[15px] font-extrabold tracking-widest text-[#212322] font-serif uppercase hover:opacity-60 transition-opacity"
+                        >
+                            Stay Ari Tokyo
+                        </button>
                         {todayVisitors > 0 && (
-                            <span className="text-[9px] sm:text-[10px] font-medium text-[#aaa] tracking-wide ml-1">TODAY {todayVisitors}</span>
+                            <span className="text-[9px] sm:text-[10px] font-medium text-[#aaa] tracking-wide ml-2">TODAY {todayVisitors}</span>
                         )}
                     </div>
                     <div className="flex items-center gap-1.5 sm:gap-3 md:gap-4 shrink-0">
                         <span className="hidden md:inline text-[13px] text-[#888] font-medium">Shinjuku, Tokyo</span>
-                        <button onClick={() => navigate('/notice')} className="text-[11px] sm:text-[12px] md:text-[13px] font-medium text-[#555] hover:text-[#212322] transition-colors py-2 px-1.5 sm:px-3">Notice</button>
-                        <button onClick={() => navigate('/faq')} className="text-[11px] sm:text-[12px] md:text-[13px] font-medium text-[#555] hover:text-[#212322] transition-colors py-2 px-1.5 sm:px-3">FAQ</button>
-                        <button onClick={() => navigate('/jobs')} className="bg-[#212322] text-white text-[11px] sm:text-[12px] md:text-[13px] font-bold py-2 px-3 sm:px-5 rounded-full hover:bg-black transition-all shadow-sm">지원하기</button>
+                        <button onClick={() => navigate('/notice')} className="text-[11px] sm:text-[12px] md:text-[13px] font-medium text-[#555] hover:text-[#212322] active:scale-95 transition-all py-2 px-1.5 sm:px-3">Notice</button>
+                        <button onClick={() => navigate('/faq')} className="text-[11px] sm:text-[12px] md:text-[13px] font-medium text-[#555] hover:text-[#212322] active:scale-95 transition-all py-2 px-1.5 sm:px-3">FAQ</button>
+                        <button onClick={() => navigate('/jobs')} className="bg-[#212322] text-white text-[11px] sm:text-[12px] md:text-[13px] font-bold py-2 px-3 sm:px-5 rounded-full hover:bg-black active:scale-95 transition-all shadow-sm">지원하기</button>
                     </div>
                 </div>
             </nav>
@@ -226,27 +334,27 @@ const LandingPage = () => {
                     <div className="absolute inset-0 bg-gradient-to-t from-[#0f172a] via-[#0f172a]/70 to-[#0f172a]/20" />
                 </motion.div>
 
-                <div className="relative z-10 w-full max-w-[1400px] mx-auto flex flex-col justify-end h-full">
-                    <motion.div initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.8 }} className="max-w-xl md:max-w-3xl px-2 mb-8 md:mb-16">
-                        <h1 className="text-white font-extrabold leading-[1.2] tracking-tight mb-4 md:mb-6 text-4xl sm:text-5xl md:text-6xl break-keep drop-shadow-2xl">STAY ARI TOKYO,<br />도쿄의 럭셔리를 완성하다.</h1>
+                <div className="relative z-10 w-full max-w-[1600px] mx-auto flex flex-col justify-end h-full">
+                    <motion.div initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.8 }} className="max-w-xl md:max-w-4xl px-2 mb-8 md:mb-16">
+                        <h1 className="text-white font-extrabold leading-[1.2] tracking-tight mb-4 md:mb-6 text-4xl sm:text-5xl md:text-6xl lg:text-7xl break-keep drop-shadow-2xl">STAY ARI TOKYO,<br />도쿄의 럭셔리를 완성하다.</h1>
                         <p className="text-white/80 text-sm sm:text-base md:text-lg font-medium border-l-2 border-blue-500 pl-4">세계적인 여행자들에게 잊지 못할 숙박 경험을 제공할<br className="hidden md:block"/>열정적인 호텔리어를 찾습니다.</p>
                     </motion.div>
                 </div>
 
-                <motion.div initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.2 }} className="absolute bottom-0 left-0 right-0 w-full max-w-[1400px] mx-auto px-4 sm:px-6 md:px-16 flex items-end translate-y-4 md:translate-y-6 z-20">
-                    <div className="w-full sm:w-[500px] md:w-[600px] flex pb-6 md:pb-8 flex-col rounded-t-2xl shadow-[0_40px_80px_rgba(0,0,0,0.3)] overflow-hidden bg-[#1e293b]">
-                        <div className="flex flex-col sm:flex-row w-full h-full">
-                            <div className="flex-1 bg-[#2563eb] text-white p-4 sm:p-5 md:p-6 cursor-pointer hover:bg-blue-600 transition-colors group" onClick={() => navigate('/jobs')}>
-                                <h3 className="text-sm sm:text-lg md:text-xl font-bold mb-1 flex items-center gap-1.5 sm:gap-2">채용 공고 <span className="transform transition-transform group-hover:translate-x-1">→</span></h3>
-                                <p className="text-[10px] sm:text-[12px] md:text-[13px] text-white/90">진행 중인 포지션 확인</p>
+                <motion.div initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.2 }} className="absolute bottom-0 left-0 right-0 w-full max-w-[1600px] mx-auto px-4 sm:px-6 md:px-16 flex items-end translate-y-4 md:translate-y-6 z-[30]">
+                    <div className="w-full sm:w-[500px] md:w-[650px] flex pb-6 md:pb-8 flex-col rounded-t-2xl shadow-[0_40px_80px_rgba(0,0,0,0.3)] overflow-hidden bg-[#1e293b]">
+                        <div className="flex flex-row w-full h-full">
+                            <div className="flex-1 bg-[#2563eb] text-white p-3 sm:p-5 md:p-6 cursor-pointer hover:bg-blue-600 active:bg-blue-700 active:scale-95 transition-all group flex flex-col justify-center items-center text-center sm:items-start sm:text-left" onClick={() => navigate('/jobs')}>
+                                <h3 className="text-[12px] sm:text-lg md:text-xl font-bold mb-0.5 sm:mb-1 flex items-center gap-1 sm:gap-2">채용 공고 <span className="hidden sm:inline transform transition-transform group-hover:translate-x-1">→</span></h3>
+                                <p className="text-[9px] sm:text-[12px] md:text-[13px] text-white/90">포지션 확인</p>
                             </div>
-                            <div className="flex-1 bg-[#1e293b] text-white p-4 sm:p-5 md:p-6 cursor-pointer hover:bg-[#334155] transition-colors group sm:border-l border-t sm:border-t-0 border-white/10" onClick={() => navigate('/notice')}>
-                                <h3 className="text-sm sm:text-lg md:text-xl font-bold mb-1 flex items-center gap-1.5 sm:gap-2">공지사항 <span className="transform transition-transform group-hover:translate-x-1">→</span></h3>
-                                <p className="text-[10px] sm:text-[12px] md:text-[13px] text-gray-400">새로운 소식</p>
+                            <div className="flex-1 bg-[#1e293b] text-white p-3 sm:p-5 md:p-6 cursor-pointer hover:bg-[#334155] active:bg-[#0f172a] active:scale-95 transition-all group border-l border-white/10 flex flex-col justify-center items-center text-center sm:items-start sm:text-left" onClick={() => navigate('/notice')}>
+                                <h3 className="text-[12px] sm:text-lg md:text-xl font-bold mb-0.5 sm:mb-1 flex items-center gap-1 sm:gap-2">공지사항 <span className="hidden sm:inline transform transition-transform group-hover:translate-x-1">→</span></h3>
+                                <p className="text-[9px] sm:text-[12px] md:text-[13px] text-gray-400">새로운 소식</p>
                             </div>
-                            <div className="flex-1 bg-[#1e293b] text-white p-4 sm:p-5 md:p-6 cursor-pointer hover:bg-[#334155] transition-colors group sm:border-l border-t sm:border-t-0 border-white/10" onClick={() => setIsInquiryOpen(true)}>
-                                <h3 className="text-sm sm:text-lg md:text-xl font-bold mb-1 flex items-center gap-1.5 sm:gap-2">채용 문의 <span className="transform transition-transform group-hover:translate-x-1">→</span></h3>
-                                <p className="text-[10px] sm:text-[12px] md:text-[13px] text-gray-400">1:1 실시간 상담</p>
+                            <div className="flex-1 bg-[#1e293b] text-white p-3 sm:p-5 md:p-6 cursor-pointer hover:bg-[#334155] active:bg-[#0f172a] active:scale-95 transition-all group border-l border-white/10 flex flex-col justify-center items-center text-center sm:items-start sm:text-left" onClick={() => setIsInquiryOpen(true)}>
+                                <h3 className="text-[12px] sm:text-lg md:text-xl font-bold mb-0.5 sm:mb-1 flex items-center gap-1 sm:gap-2">채용 문의 <span className="hidden sm:inline transform transition-transform group-hover:translate-x-1">→</span></h3>
+                                <p className="text-[9px] sm:text-[12px] md:text-[13px] text-gray-400">1:1 상담</p>
                             </div>
                         </div>
                     </div>
@@ -263,7 +371,7 @@ const LandingPage = () => {
 
             {/* ═══ Why Join Us (Ultra-Premium Asymmetrical Web Design) ═══ */}
             <section className="relative w-full bg-white pt-32 pb-48 lg:pt-40 lg:pb-56 px-4 sm:px-6 z-10 border-t border-gray-100/50 overflow-hidden">
-                <div className="max-w-[1500px] mx-auto relative px-4 md:px-8">
+                <div className="max-w-[1800px] mx-auto relative px-4 md:px-8">
                     <div className="flex flex-col xl:flex-row justify-between items-start xl:items-end mb-24 md:mb-32 lg:mb-40 gap-12 xl:gap-20">
                         <div className="relative">
                             <motion.div className="inline-flex items-center gap-4 mb-6 md:mb-8" initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}>
@@ -309,7 +417,7 @@ const LandingPage = () => {
                 </div>
                 <div className="flex flex-col gap-12 max-w-[420px] mx-auto">
                     {rooms.map((r, i) => (
-                        <div key={i} className="group cursor-pointer text-left flex flex-col items-center" onClick={() => r.link && window.open(r.link, '_blank')}>
+                        <div key={i} className="group cursor-pointer text-left flex flex-col items-center active:scale-[0.98] transition-transform duration-200" onClick={() => r.link && window.open(r.link, '_blank')}>
                             <div className="relative w-full aspect-[4/3] rounded-sm overflow-hidden mb-5 bg-[#f8f9fa] shadow-sm">
                                 <img src={r.src} alt={r.name} className="absolute inset-0 w-full h-full object-cover" />
                             </div>
@@ -381,7 +489,7 @@ const LandingPage = () => {
                                 <h4 className="text-[11px] font-extrabold tracking-[0.3em] text-[#212322] uppercase opacity-40">Resources</h4>
                                 <ul className="space-y-4">
                                     {['Notice', 'FAQ', 'Company'].map((item) => (
-                                        <li key={item}><button onClick={() => navigate(`/${item.toLowerCase()}`)} className="text-[14px] font-semibold text-[#555] hover:text-[#212322] transition-colors">{item}</button></li>
+                                        <li key={item}><button onClick={() => navigate(`/${item.toLowerCase()}`)} className="text-[14px] font-semibold text-[#555] shadow-none hover:text-[#212322] active:scale-95 active:opacity-60 transition-all text-left">{item}</button></li>
                                     ))}
                                 </ul>
                             </div>
@@ -389,7 +497,7 @@ const LandingPage = () => {
                                 <h4 className="text-[11px] font-extrabold tracking-[0.3em] text-[#212322] uppercase opacity-40">Legal</h4>
                                 <ul className="space-y-4">
                                     {['Terms', 'Privacy', 'Admin'].map((item) => (
-                                        <li key={item}><button onClick={() => navigate(`/${item.toLowerCase()}`)} className="text-[14px] font-semibold text-[#555] hover:text-[#212322] transition-colors">{item}</button></li>
+                                        <li key={item}><button onClick={() => navigate(`/${item.toLowerCase()}`)} className="text-[14px] font-semibold text-[#555] shadow-none hover:text-[#212322] active:scale-95 active:opacity-60 transition-all text-left">{item}</button></li>
                                     ))}
                                 </ul>
                             </div>
@@ -411,15 +519,43 @@ const LandingPage = () => {
                 </div>
             </footer>
 
-            {/* Floating Chat Widget */}
-            <div className="fixed bottom-6 right-6 z-[60] flex flex-col items-end gap-4 print:hidden">
-                <div className={`w-[calc(100vw-3rem)] sm:w-[380px] h-[550px] sm:h-[650px] max-w-[400px] mb-2 transition-all duration-300 origin-bottom-right ${isInquiryOpen ? 'scale-100 opacity-100' : 'scale-75 opacity-0 pointer-events-none'}`}>
-                    {roomId ? <ChatWindow roomId={roomId} applicantName={applicantName} onClose={() => setIsInquiryOpen(false)} /> : <InquiryForm onSubmit={handleInquirySubmit} onClose={() => setIsInquiryOpen(false)} />}
+            <div className={`fixed inset-0 sm:inset-auto sm:bottom-6 sm:right-6 z-[100] flex flex-col items-end print:hidden ${isInquiryOpen ? 'pointer-events-auto' : 'pointer-events-none'}`}>
+                <div className={`w-full h-full sm:w-[380px] sm:h-[650px] sm:max-w-[400px] sm:mx-0 mb-0 sm:mb-2 transition-all duration-300 sm:origin-bottom-right ${isInquiryOpen ? 'opacity-100 sm:scale-100 sm:translate-y-0' : 'opacity-0 sm:scale-75 sm:translate-y-10 invisible'}`}>
+                    {roomId ? (
+                        <ChatWindow 
+                            roomId={roomId} 
+                            onClose={() => {
+                                setIsInquiryOpen(false);
+                                setRoomId(localStorage.getItem('chatRoomId'));
+                            }} 
+                            isAdmin={false} 
+                            shouldMarkAsRead={isInquiryOpen}
+                        />
+                    ) : (
+                        <InquiryForm 
+                            onSubmit={handleInquirySubmit} 
+                            onClose={() => setIsInquiryOpen(false)} 
+                        />
+                    )}
                 </div>
-                <button onClick={() => setIsInquiryOpen(!isInquiryOpen)} className="w-14 h-14 bg-[#111] text-white rounded-full flex items-center justify-center shadow-2xl hover:scale-110 active:scale-95 group relative">
-                    {isInquiryOpen ? <X className="w-6 h-6" /> : <MessageCircle className="w-6 h-6" />}
-                    {!isInquiryOpen && <span className="absolute right-full mr-4 bg-white text-[#111] px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap shadow-xl opacity-0 group-hover:opacity-100 transition-opacity">담당자와 실시간 상담</span>}
-                </button>
+                <div className="w-full flex justify-end px-6 pb-6">
+                    <button onClick={() => setIsInquiryOpen(!isInquiryOpen)} className="pointer-events-auto w-14 h-14 bg-[#111] text-white rounded-full flex items-center justify-center shadow-2xl hover:scale-110 active:scale-90 transition-all group relative">
+                        {isInquiryOpen ? <X className="w-6 h-6" /> : <MessageCircle className="w-6 h-6" />}
+                        <AnimatePresence>
+                            {unreadBadgeCount > 0 && (
+                                <motion.span 
+                                    initial={{ scale: 0, opacity: 0 }}
+                                    animate={{ scale: 1, opacity: 1 }}
+                                    exit={{ scale: 0, opacity: 0 }}
+                                    className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center border-2 border-white shadow-lg z-10"
+                                >
+                                    {unreadBadgeCount > 9 ? '9+' : unreadBadgeCount}
+                                </motion.span>
+                            )}
+                        </AnimatePresence>
+                        {!isInquiryOpen && <span className="absolute right-full mr-4 bg-white text-[#111] px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap shadow-xl opacity-0 group-hover:opacity-100 transition-opacity hidden sm:block">담당자와 실시간 상담</span>}
+                    </button>
+                </div>
             </div>
         </div>
     );

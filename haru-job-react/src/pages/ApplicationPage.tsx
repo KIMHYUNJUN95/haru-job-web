@@ -1,13 +1,19 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, CheckCircle2, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { db, storage } from '../firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { jobPostings } from './JobListingsPage';
+
 
 const ApplicationPage = () => {
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
+    const requestedJobId = searchParams.get('job') || 'cleaning-staff';
+    const selectedJob = jobPostings.find(job => job.id === requestedJobId) || jobPostings[0];
+    const isFullTime = selectedJob.employmentType === 'full-time';
     const [step, setStep] = useState(1);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const totalSteps = 4; // 단계 간소화 (기본, 일정, 경험, 첨부)
@@ -17,6 +23,7 @@ const ApplicationPage = () => {
         address: '', commute_time: '', uniform_size: '', nationality: '대한민국',
         visa_type: '', visa_period: '',
         days: [] as string[], days_per_week: '', duration: '', start_date: '',
+        applied_position: '',
         // 추가 역량 및 업종 경험 관련 필드
         has_industry_exp: '', // '예', '아니오'
         industry_tasks: [] as string[], // '베딩', '인포메이션(프론트)', '객실 청소', '기타'
@@ -27,6 +34,47 @@ const ApplicationPage = () => {
 
     const nextStep = () => setStep(prev => Math.min(prev + 1, totalSteps + 1));
     const prevStep = () => setStep(prev => Math.max(prev - 1, 1));
+
+    const validateStep = (currentStep: number) => {
+        if (currentStep === 1) {
+            if (!formData.name || !formData.age || !formData.gender || !formData.phone || !formData.kakao_id || !formData.uniform_size) {
+                alert('필수 기본 인적사항을 모두 입력해주세요.');
+                return false;
+            }
+
+            if (!formData.visa_type || !formData.visa_period) {
+                alert('재류카드에 기재된 정확한 재류자격 명칭과 비자 만료일을 모두 입력해주세요.');
+                return false;
+            }
+
+            if (isFullTime && (!formData.address || !formData.nationality)) {
+                alert('정사원 지원자는 현재 거주지와 국적을 모두 입력해주세요.');
+                return false;
+            }
+        }
+
+        if (currentStep === 2 && isFullTime && (!formData.applied_position || !formData.start_date)) {
+            alert('지원 직무와 입사 가능일을 입력해주세요.');
+            return false;
+        }
+
+        if (currentStep === 3 && (!formData.has_industry_exp || !formData.source || !formData.motivation)) {
+            alert('경력 여부, 지원 경로와 지원 동기를 모두 입력해주세요.');
+            return false;
+        }
+
+        if (currentStep === 4 && isFullTime && !formData.resume_file) {
+            alert('정사원 지원자는 사진이 첨부된 이력서를 반드시 제출해주세요.');
+            return false;
+        }
+
+        return true;
+    };
+
+    const handleNext = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (validateStep(step)) nextStep();
+    };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         const { name, value, type } = e.target;
@@ -56,7 +104,7 @@ const ApplicationPage = () => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        if (isSubmitting) return;
+        if (isSubmitting || !validateStep(totalSteps)) return;
         setIsSubmitting(true);
 
         try {
@@ -72,6 +120,10 @@ const ApplicationPage = () => {
 
             // 2. 지원서 데이터 Firestore 저장
             const applicationData = {
+                job_id: selectedJob.id,
+                job_title: selectedJob.title,
+                employment_type: selectedJob.type,
+                applied_position: isFullTime ? formData.applied_position : selectedJob.title,
                 name: formData.name,
                 age: formData.age,
                 gender: formData.gender,
@@ -92,13 +144,16 @@ const ApplicationPage = () => {
                 source: formData.source,
                 motivation: formData.motivation,
                 resumeUrl: resumeUrl, // 업로드된 이력서 링크 (없으면 null)
+                resumeFileName: formData.resume_file?.name || null,
                 createdAt: serverTimestamp(),
                 status: '대기 중' // 관리자 대시보드 관리용 초기 상태
             };
 
             await addDoc(collection(db, 'applications'), applicationData);
 
-            // 3. 성공 화면 렌더링을 위해 다음 단계 이동
+
+
+            // 4. 성공 화면 렌더링을 위해 다음 단계 이동
             nextStep();
         } catch (error) {
             console.error("지원서 제출 에러:", error);
@@ -114,9 +169,12 @@ const ApplicationPage = () => {
                 return (
                     <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-6">
                         <h2 className="text-[2rem] font-extrabold tracking-tight text-[#1a1a1a] mb-8">기본 인적 사항</h2>
+                        <div className="rounded-2xl border border-blue-100 bg-blue-50/70 px-5 py-4 text-[13px] font-medium leading-relaxed text-blue-900">
+                            재류카드를 확인한 뒤 재류자격의 공식 명칭과 정확한 만료일을 카드에 적힌 내용 그대로 입력해주세요.
+                        </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
-                            <div><label className="block text-[13px] font-bold text-[#555] mb-2 uppercase">1. 성명 *</label><input required className="w-full bg-[#f9f9f9] border border-[#ddd] rounded-2xl px-5 py-4 focus:outline-none focus:border-[#111] focus:ring-1 focus:ring-[#111] focus:bg-white text-[#111] transition-all shadow-sm" name="name" onChange={handleChange} value={formData.name} placeholder="성명을 입력하세요" /></div>
-                            <div><label className="block text-[13px] font-bold text-[#555] mb-2 uppercase">2. 만 나이 *</label><input required type="number" className="w-full bg-[#f9f9f9] border border-[#ddd] rounded-2xl px-5 py-4 focus:outline-none focus:border-[#111] focus:ring-1 focus:ring-[#111] focus:bg-white text-[#111] transition-all shadow-sm" name="age" onChange={handleChange} value={formData.age} placeholder="만 나이" /></div>
+                            <div><label className="block text-[13px] font-bold text-[#555] mb-2 uppercase">1. 성명 *</label><input required className="w-full bg-[#f9f9f9] border border-[#ddd] rounded-2xl px-5 py-4 focus:outline-none focus:border-[#111] focus:ring-1 focus:ring-[#111] focus:bg-white text-[#111] text-base transition-all shadow-sm" name="name" onChange={handleChange} value={formData.name} placeholder="성명을 입력하세요" /></div>
+                            <div><label className="block text-[13px] font-bold text-[#555] mb-2 uppercase">2. 만 나이 *</label><input required type="number" className="w-full bg-[#f9f9f9] border border-[#ddd] rounded-2xl px-5 py-4 focus:outline-none focus:border-[#111] focus:ring-1 focus:ring-[#111] focus:bg-white text-[#111] text-base transition-all shadow-sm" name="age" onChange={handleChange} value={formData.age} placeholder="만 나이" /></div>
 
                             <div className="md:col-span-2">
                                 <label className="block text-[13px] font-bold text-[#555] mb-3 uppercase">3. 성별 *</label>
@@ -130,10 +188,10 @@ const ApplicationPage = () => {
                                 </div>
                             </div>
 
-                            <div><label className="block text-[13px] font-bold text-[#555] mb-2 uppercase">4. 휴대폰 번호 *</label><input required className="w-full bg-[#f9f9f9] border border-[#ddd] rounded-2xl px-5 py-4 focus:outline-none focus:border-[#111] focus:ring-1 focus:ring-[#111] focus:bg-white text-[#111] transition-all shadow-sm" name="phone" onChange={handleChange} value={formData.phone} placeholder="010-0000-0000" /></div>
-                            <div><label className="block text-[13px] font-bold text-[#555] mb-2 uppercase">5. 카카오톡 ID *</label><input required className="w-full bg-[#f9f9f9] border border-[#ddd] rounded-2xl px-5 py-4 focus:outline-none focus:border-[#111] focus:ring-1 focus:ring-[#111] focus:bg-white text-[#111] transition-all shadow-sm" name="kakao_id" onChange={handleChange} value={formData.kakao_id} placeholder="카카오톡 ID" /></div>
+                            <div><label className="block text-[13px] font-bold text-[#555] mb-2 uppercase">4. 휴대폰 번호 *</label><input required className="w-full bg-[#f9f9f9] border border-[#ddd] rounded-2xl px-5 py-4 focus:outline-none focus:border-[#111] focus:ring-1 focus:ring-[#111] focus:bg-white text-[#111] text-base transition-all shadow-sm" name="phone" onChange={handleChange} value={formData.phone} placeholder="010-0000-0000" /></div>
+                            <div><label className="block text-[13px] font-bold text-[#555] mb-2 uppercase">5. 카카오톡 ID *</label><input required className="w-full bg-[#f9f9f9] border border-[#ddd] rounded-2xl px-5 py-4 focus:outline-none focus:border-[#111] focus:ring-1 focus:ring-[#111] focus:bg-white text-[#111] text-base transition-all shadow-sm" name="kakao_id" onChange={handleChange} value={formData.kakao_id} placeholder="카카오톡 ID" /></div>
 
-                            <div className="md:col-span-2"><label className="block text-[13px] font-bold text-[#555] mb-2 uppercase">6. 현재 거주지</label><input className="w-full bg-[#f9f9f9] border border-[#ddd] rounded-2xl px-5 py-4 focus:outline-none focus:border-[#111] focus:ring-1 focus:ring-[#111] focus:bg-white text-[#111] transition-all shadow-sm" name="address" onChange={handleChange} value={formData.address} placeholder="예: 도쿄도 신주쿠구" /></div>
+                            <div className="md:col-span-2"><label className="block text-[13px] font-bold text-[#555] mb-2 uppercase">6. 현재 거주지 {isFullTime && '*'}</label><input required={isFullTime} className="w-full bg-[#f9f9f9] border border-[#ddd] rounded-2xl px-5 py-4 focus:outline-none focus:border-[#111] focus:ring-1 focus:ring-[#111] focus:bg-white text-[#111] text-base transition-all shadow-sm" name="address" onChange={handleChange} value={formData.address} placeholder="예: 도쿄도 신주쿠구" /></div>
 
                             <div>
                                 <label className="block text-[13px] font-bold text-[#555] mb-2 uppercase">7. 출퇴근 소요 시간</label>
@@ -158,52 +216,82 @@ const ApplicationPage = () => {
                             </div>
 
                             {/* 순서 조정됨 (9, 10, 11) */}
-                            <div><label className="block text-[13px] font-bold text-[#555] mb-2 uppercase">9. 국적</label><input className="w-full bg-[#f9f9f9] border border-[#ddd] rounded-2xl px-5 py-4 focus:outline-none focus:border-[#111] focus:ring-1 focus:ring-[#111] focus:bg-white text-[#111] transition-all shadow-sm" name="nationality" onChange={handleChange} value={formData.nationality} /></div>
-                            <div><label className="block text-[13px] font-bold text-[#555] mb-2 uppercase">10. 비자 종류</label><input className="w-full bg-[#f9f9f9] border border-[#ddd] rounded-2xl px-5 py-4 focus:outline-none focus:border-[#111] focus:ring-1 focus:ring-[#111] focus:bg-white text-[#111] transition-all shadow-sm" name="visa_type" onChange={handleChange} value={formData.visa_type} placeholder="예: 워킹홀리데이" /></div>
-                            <div><label className="block text-[13px] font-bold text-[#555] mb-2 uppercase">11. 비자 만료일</label><input className="w-full bg-[#f9f9f9] border border-[#ddd] rounded-2xl px-5 py-4 focus:outline-none focus:border-[#111] focus:ring-1 focus:ring-[#111] focus:bg-white text-[#111] transition-all shadow-sm" name="visa_period" onChange={handleChange} value={formData.visa_period} placeholder="예: 2025년 6월" /></div>
+                            <div className="md:col-span-2"><label className="block text-[13px] font-bold text-[#555] mb-2 uppercase">9. 국적 {isFullTime && '*'}</label><input required={isFullTime} className="w-full bg-[#f9f9f9] border border-[#ddd] rounded-2xl px-5 py-4 focus:outline-none focus:border-[#111] focus:ring-1 focus:ring-[#111] focus:bg-white text-[#111] text-base transition-all shadow-sm" name="nationality" onChange={handleChange} value={formData.nationality} /></div>
+                            <div>
+                                <label className="block text-[13px] font-bold text-[#555] mb-2 uppercase">10. 현재 비자(재류자격)의 정확한 명칭 *</label>
+                                <input required className="w-full bg-[#f9f9f9] border border-[#ddd] rounded-2xl px-5 py-4 focus:outline-none focus:border-[#111] focus:ring-1 focus:ring-[#111] focus:bg-white text-[#111] text-base transition-all shadow-sm" name="visa_type" onChange={handleChange} value={formData.visa_type} placeholder="예: 특정활동(워킹홀리데이)" />
+                                <p className="mt-2 px-1 text-[12px] leading-relaxed text-gray-500">재류카드의 ‘재류자격’ 항목을 그대로 입력해주세요. 예: 유학, 가족체재, 기술·인문지식·국제업무</p>
+                            </div>
+                            <div>
+                                <label className="block text-[13px] font-bold text-[#555] mb-2 uppercase">11. 정확한 비자 만료일 *</label>
+                                <input required className="w-full bg-[#f9f9f9] border border-[#ddd] rounded-2xl px-5 py-4 focus:outline-none focus:border-[#111] focus:ring-1 focus:ring-[#111] focus:bg-white text-[#111] text-base transition-all shadow-sm" name="visa_period" onChange={handleChange} value={formData.visa_period} placeholder="예: 2027년 6월 30일" />
+                                <p className="mt-2 px-1 text-[12px] leading-relaxed text-gray-500">남은 개월 수가 아닌 재류카드의 정확한 만료일을 입력해주세요. 영주자는 ‘영주자(기간 없음)’으로 입력해주세요.</p>
+                            </div>
                         </div>
                     </motion.div>
                 );
             case 2:
                 return (
                     <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-6">
-                        <h2 className="text-[2rem] font-extrabold tracking-tight text-[#1a1a1a] mb-8">근무 희망 일정</h2>
+                        <h2 className="text-[2rem] font-extrabold tracking-tight text-[#1a1a1a] mb-8">{isFullTime ? '지원 직무 및 입사 일정' : '근무 희망 일정'}</h2>
 
-                        <div>
-                            <label className="block text-[13px] font-bold text-[#555] mb-4 uppercase">12. 근무 희망 요일</label>
-                            <div className="flex flex-wrap gap-3">
-                                {['월', '화', '수', '목', '금', '토', '일'].map(d => (
-                                    <label key={d} className="cursor-pointer">
-                                        <input type="checkbox" name="days" value={d} checked={formData.days.includes(d)} onChange={handleChange} className="hidden" />
-                                        <div className={`w-14 h-14 flex items-center justify-center rounded-2xl border text-[15px] font-bold shadow-sm transition-all ${formData.days.includes(d) ? 'bg-[#111] text-white border-[#111]' : 'bg-[#f9f9f9] border-[#ddd] text-[#666] hover:border-[#aaa]'}`}>{d}</div>
-                                    </label>
-                                ))}
+                        {isFullTime ? (
+                            <div className="space-y-8 pb-4">
+                                <div>
+                                    <label className="block text-[13px] font-bold text-[#555] mb-4 uppercase">12. 지원 직무 *</label>
+                                    <div className="grid grid-cols-1 gap-3">
+                                        {selectedJob.applicationPositions?.map(position => (
+                                            <label key={position} className="cursor-pointer">
+                                                <input type="radio" name="applied_position" value={position} checked={formData.applied_position === position} onChange={handleChange} className="hidden" />
+                                                <div className={`w-full p-5 rounded-2xl border text-[15px] font-bold transition-all shadow-sm ${formData.applied_position === position ? 'bg-[#111] text-white border-[#111]' : 'bg-[#f9f9f9] border-[#ddd] text-[#555] hover:border-[#aaa]'}`}>{position}</div>
+                                            </label>
+                                        ))}
+                                    </div>
+                                </div>
+                                <div>
+                                    <label className="block text-[13px] font-bold text-[#555] mb-2 uppercase">13. 입사 가능일 *</label>
+                                    <input required className="w-full bg-[#f9f9f9] border border-[#ddd] rounded-2xl px-5 py-4 focus:outline-none focus:border-[#111] focus:ring-1 focus:ring-[#111] focus:bg-white text-[#111] text-base transition-all shadow-sm" name="start_date" onChange={handleChange} value={formData.start_date} placeholder="예: 2026년 9월 1일 / 즉시 가능" />
+                                </div>
                             </div>
-                        </div>
+                        ) : (
+                            <>
+                                <div>
+                                    <label className="block text-[13px] font-bold text-[#555] mb-4 uppercase">12. 근무 희망 요일</label>
+                                    <div className="flex flex-wrap gap-3">
+                                        {['월', '화', '수', '목', '금', '토', '일'].map(d => (
+                                            <label key={d} className="cursor-pointer">
+                                                <input type="checkbox" name="days" value={d} checked={formData.days.includes(d)} onChange={handleChange} className="hidden" />
+                                                <div className={`w-14 h-14 flex items-center justify-center rounded-2xl border text-[15px] font-bold shadow-sm transition-all ${formData.days.includes(d) ? 'bg-[#111] text-white border-[#111]' : 'bg-[#f9f9f9] border-[#ddd] text-[#666] hover:border-[#aaa]'}`}>{d}</div>
+                                            </label>
+                                        ))}
+                                    </div>
+                                </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 pb-4">
-                            <div>
-                                <label className="block text-[13px] font-bold text-[#555] mb-2 uppercase">13. 주당 근로 일수</label>
-                                <select className="w-full bg-[#f9f9f9] border border-[#ddd] rounded-2xl px-5 py-4 focus:outline-none focus:border-[#111] focus:ring-1 focus:ring-[#111] focus:bg-white text-[#111] transition-all shadow-sm appearance-none cursor-pointer" name="days_per_week" onChange={handleChange} value={formData.days_per_week}>
-                                    <option value="" disabled>선택</option>
-                                    {[1, 2, 3, 4, 5, 6, 7].map(n => <option key={n} value={`${n}일`}>주 {n}일</option>)}
-                                </select>
-                            </div>
-                            <div>
-                                <label className="block text-[13px] font-bold text-[#555] mb-2 uppercase">14. 희망 근무 기간</label>
-                                <select className="w-full bg-[#f9f9f9] border border-[#ddd] rounded-2xl px-5 py-4 focus:outline-none focus:border-[#111] focus:ring-1 focus:ring-[#111] focus:bg-white text-[#111] transition-all shadow-sm appearance-none cursor-pointer" name="duration" onChange={handleChange} value={formData.duration}>
-                                    <option value="" disabled>선택</option>
-                                    <option value="1개월">1개월 미만</option>
-                                    <option value="3개월">3개월</option>
-                                    <option value="6개월">6개월</option>
-                                    <option value="1년">1년 이상 (장기)</option>
-                                </select>
-                            </div>
-                            <div className="md:col-span-2">
-                                <label className="block text-[13px] font-bold text-[#555] mb-2 uppercase">15. 근무 시작 가능일</label>
-                                <input className="w-full bg-[#f9f9f9] border border-[#ddd] rounded-2xl px-5 py-4 focus:outline-none focus:border-[#111] focus:ring-1 focus:ring-[#111] focus:bg-white text-[#111] transition-all shadow-sm" name="start_date" onChange={handleChange} value={formData.start_date} placeholder="예: 즉시 가능" />
-                            </div>
-                        </div>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 pb-4">
+                                    <div>
+                                        <label className="block text-[13px] font-bold text-[#555] mb-2 uppercase">13. 주당 근로 일수</label>
+                                        <select className="w-full bg-[#f9f9f9] border border-[#ddd] rounded-2xl px-5 py-4 focus:outline-none focus:border-[#111] focus:ring-1 focus:ring-[#111] focus:bg-white text-[#111] transition-all shadow-sm appearance-none cursor-pointer" name="days_per_week" onChange={handleChange} value={formData.days_per_week}>
+                                            <option value="" disabled>선택</option>
+                                            {[1, 2, 3, 4, 5, 6, 7].map(n => <option key={n} value={`${n}일`}>주 {n}일</option>)}
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label className="block text-[13px] font-bold text-[#555] mb-2 uppercase">14. 희망 근무 기간</label>
+                                        <select className="w-full bg-[#f9f9f9] border border-[#ddd] rounded-2xl px-5 py-4 focus:outline-none focus:border-[#111] focus:ring-1 focus:ring-[#111] focus:bg-white text-[#111] transition-all shadow-sm appearance-none cursor-pointer" name="duration" onChange={handleChange} value={formData.duration}>
+                                            <option value="" disabled>선택</option>
+                                            <option value="1개월">1개월 미만</option>
+                                            <option value="3개월">3개월</option>
+                                            <option value="6개월">6개월</option>
+                                            <option value="1년">1년 이상 (장기)</option>
+                                        </select>
+                                    </div>
+                                    <div className="md:col-span-2">
+                                        <label className="block text-[13px] font-bold text-[#555] mb-2 uppercase">15. 근무 시작 가능일</label>
+                                        <input className="w-full bg-[#f9f9f9] border border-[#ddd] rounded-2xl px-5 py-4 focus:outline-none focus:border-[#111] focus:ring-1 focus:ring-[#111] focus:bg-white text-[#111] text-base transition-all shadow-sm" name="start_date" onChange={handleChange} value={formData.start_date} placeholder="예: 즉시 가능" />
+                                    </div>
+                                </div>
+                            </>
+                        )}
                     </motion.div>
                 );
             case 3:
@@ -251,11 +339,11 @@ const ApplicationPage = () => {
                         <div className="pt-6 space-y-6">
                             <div>
                                 <label className="block text-[13px] font-bold text-[#555] mb-2 uppercase">17. 어느 사이트를 보고 지원하셨나요? *</label>
-                                <input required className="w-full bg-[#f9f9f9] border border-[#ddd] rounded-2xl px-5 py-4 focus:outline-none focus:border-[#111] focus:ring-1 focus:ring-[#111] focus:bg-white text-[#111] transition-all shadow-sm" name="source" onChange={handleChange} value={formData.source} placeholder="예: 인디드, 페이스북, 지인 소개 등" />
+                                <input required className="w-full bg-[#f9f9f9] border border-[#ddd] rounded-2xl px-5 py-4 focus:outline-none focus:border-[#111] focus:ring-1 focus:ring-[#111] focus:bg-white text-[#111] text-base transition-all shadow-sm" name="source" onChange={handleChange} value={formData.source} placeholder="예: 인디드, 페이스북, 지인 소개 등" />
                             </div>
                             <div>
                                 <label className="block text-[13px] font-bold text-[#555] mb-2 uppercase">18. 지원하게 된 계기 (지원 동기) *</label>
-                                <textarea required className="w-full bg-[#f9f9f9] border border-[#ddd] rounded-2xl px-5 py-4 focus:outline-none focus:border-[#111] focus:ring-1 focus:ring-[#111] focus:bg-white text-[#111] transition-all shadow-sm min-h-[120px] resize-none" name="motivation" onChange={handleChange} value={formData.motivation} placeholder="지원하게 된 동기를 자유롭게 작성해주세요" />
+                                <textarea required className="w-full bg-[#f9f9f9] border border-[#ddd] rounded-2xl px-5 py-4 focus:outline-none focus:border-[#111] focus:ring-1 focus:ring-[#111] focus:bg-white text-[#111] text-base transition-all shadow-sm min-h-[120px] resize-none" name="motivation" onChange={handleChange} value={formData.motivation} placeholder="지원하게 된 동기를 자유롭게 작성해주세요" />
                             </div>
                         </div>
                     </motion.div>
@@ -263,13 +351,14 @@ const ApplicationPage = () => {
             case 4:
                 return (
                     <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-6">
-                        <h2 className="text-[2rem] font-extrabold tracking-tight text-[#1a1a1a] mb-8">이력서 및 포트폴리오 첨부</h2>
+                        <h2 className="text-[2rem] font-extrabold tracking-tight text-[#1a1a1a] mb-8">이력서 및 포트폴리오 첨부 {isFullTime && '*'}</h2>
 
                         <div className="relative border-2 border-dashed border-[#ccc] bg-[#f9f9f9] rounded-[32px] p-10 flex flex-col items-center justify-center text-center transition-colors hover:border-[#888] hover:bg-[#f0f0f0] group cursor-pointer min-h-[300px]">
                             <input
                                 type="file"
                                 name="resume_file"
                                 onChange={handleChange}
+                                required={isFullTime}
                                 className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                                 accept=".pdf,.doc,.docx,.hwp"
                             />
@@ -293,7 +382,9 @@ const ApplicationPage = () => {
                                     <p className="font-extrabold text-[16px] text-[#111]">여기를 눌러 이력서 파일을 첨부해주세요</p>
                                     <p className="text-[14px] text-[#777] mt-2">또는 파일을 화면 안으로 드래그합니다.</p>
                                     <div className="mt-5 px-4 py-2 bg-[#111]/5 rounded-full">
-                                        <p className="text-[12px] font-bold text-[#555] tracking-tight">※ 이력서 첨부는 선택사항이므로 건너뛰셔도 자유롭게 지원 가능합니다.</p>
+                                        <p className="text-[12px] font-bold text-[#555] tracking-tight">
+                                            {isFullTime ? '※ 정사원 지원자는 사진이 첨부된 이력서를 반드시 제출해주세요.' : '※ 이력서 첨부는 선택사항이므로 건너뛰셔도 자유롭게 지원 가능합니다.'}
+                                        </p>
                                     </div>
                                 </div>
                             )}
@@ -332,7 +423,10 @@ const ApplicationPage = () => {
                 {/* Header & Progress Bar */}
                 {step <= totalSteps && (
                     <div className="mb-12">
-                        <h1 className="text-3xl md:text-[2.5rem] font-extrabold mb-6 tracking-tight text-center">Stay Ari 지원서 작성</h1>
+                        <div className="text-center mb-6">
+                            <span className={`inline-flex rounded-full px-3 py-1 text-[12px] font-bold ${isFullTime ? 'bg-blue-50 text-blue-700 border border-blue-100' : 'bg-emerald-50 text-emerald-700 border border-emerald-100'}`}>{selectedJob.type}</span>
+                            <h1 className="text-3xl md:text-[2.5rem] font-extrabold mt-3 tracking-tight">{selectedJob.title} 지원서</h1>
+                        </div>
                         <div className="h-1.5 w-full bg-[#e5e7eb] rounded-full overflow-hidden shadow-inner">
                             <motion.div
                                 className="h-full bg-[#111]"
@@ -350,7 +444,7 @@ const ApplicationPage = () => {
 
                 {/* Form Container */}
                 <div className="bg-white p-8 md:p-14 rounded-[32px] w-full flex-1 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.05)] border border-white/60 relative">
-                    <form onSubmit={step === totalSteps ? handleSubmit : (e) => { e.preventDefault(); nextStep(); }}>
+                    <form onSubmit={step === totalSteps ? handleSubmit : handleNext}>
 
                         <AnimatePresence mode="wait">
                             {renderStep()}
