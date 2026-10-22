@@ -926,3 +926,6 @@ body{letter-spacing:-.011em}
 @media (max-width:640px){.w1 .w1-note{margin-top:6px}}
 .gc img{-webkit-user-drag:none;user-select:none}
 #apPrev::after{margin-left:0;margin-right:6px;transform:rotate(-135deg)}
+/* snap cards to the content edge, not the viewport edge, so the row never parks with an empty right side */
+.gal{scroll-padding-inline:max(22px,calc((100vw - 1024px)/2))}
+.gal{padding-inline:max(22px,calc((100vw - 1024px)/2 + 22px));scroll-padding-inline:max(22px,calc((100vw - 1024px)/2 + 22px))}
