@@ -114,9 +114,12 @@ const LandingPage = () => {
     /* "/#rooms" from the top bar, menu or hero row */
     useEffect(() => {
         if (location.hash !== '#rooms') return;
+        /* no ScrollTrigger.refresh() here: it restores the scroll position and cancels the smooth scroll */
         const t = setTimeout(() => {
-            document.getElementById('rooms')?.scrollIntoView({ behavior: prefersReducedMotion() ? 'auto' : 'smooth' });
-            ScrollTrigger.refresh();
+            const el = document.getElementById('rooms');
+            if (!el) return;
+            const top = el.getBoundingClientRect().top + window.scrollY - 72;
+            window.scrollTo({ top, behavior: prefersReducedMotion() ? 'auto' : 'smooth' });
         }, 80);
         return () => clearTimeout(t);
     }, [location.hash, location.key]);
