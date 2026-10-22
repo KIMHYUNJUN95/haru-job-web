@@ -1,6 +1,8 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, ChevronDown } from 'lucide-react';
+import Shell from '../components/site/Shell';
+import PageHead from '../components/site/PageHead';
+import AccItem from '../components/site/Accordion';
+import { prefersReducedMotion } from '../components/site/nav';
 
 interface FaqItem {
     q: string;
@@ -150,79 +152,40 @@ const faqData: FaqCategory[] = [
     },
 ];
 
-const FaqAccordion = ({ item, isOpen, onToggle }: { item: FaqItem; isOpen: boolean; onToggle: () => void }) => {
-    return (
-        <div className="border-b border-gray-100 last:border-b-0">
-            <button
-                onClick={onToggle}
-                className="w-full flex items-center justify-between py-5 px-1 text-left group"
-            >
-                <span className={`font-semibold text-[15px] transition-colors ${isOpen ? 'text-[#111]' : 'text-[#333] group-hover:text-[#111]'}`}>
-                    {item.q}
-                </span>
-                <ChevronDown className={`w-5 h-5 text-gray-400 shrink-0 ml-4 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
-            </button>
-            <div className={`overflow-hidden transition-all duration-300 ease-in-out ${isOpen ? 'max-h-[500px] opacity-100 pb-5' : 'max-h-0 opacity-0'}`}>
-                <p className="text-[14px] text-gray-600 leading-relaxed px-1 font-medium">
-                    {item.a}
-                </p>
-            </div>
-        </div>
-    );
-};
-
 const FaqPage = () => {
-    const navigate = useNavigate();
-    const [openId, setOpenId] = useState<string | null>(null);
+    const [cat, setCat] = useState(0);
+
+    const jump = (i: number) => {
+        setCat(i);
+        document.getElementById(`fc${i}`)?.scrollIntoView({ behavior: prefersReducedMotion() ? 'auto' : 'smooth' });
+    };
 
     return (
-        <div className="min-h-screen bg-[#f8f8f6] font-sans">
-            {/* 상단 네비 */}
-            <nav className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-lg border-b border-gray-100">
-                <div className="max-w-[900px] mx-auto px-6 h-16 flex items-center justify-between">
-                    <button onClick={() => navigate('/')} className="flex items-center gap-2 text-[#555] hover:text-[#111] transition-colors text-sm font-medium">
-                        <ArrowLeft className="w-4 h-4" /> 돌아가기
-                    </button>
-                    <span className="text-[15px] font-bold tracking-tight text-[#212322]">Stay Ari Tokyo</span>
-                    <div className="w-20" />
-                </div>
-            </nav>
-
-            {/* 본문 */}
-            <div className="pt-28 pb-20 px-6 max-w-[900px] mx-auto">
-                <h1 className="text-3xl md:text-4xl font-extrabold text-[#111] tracking-tight mb-3">자주 묻는 질문</h1>
-                <p className="text-gray-500 font-medium mb-12 text-sm">STAY ARI TOKYO 지원에 관한 궁금한 점을 확인하세요.</p>
-
-                <div className="space-y-8">
-                    {faqData.map((cat, i) => (
-                        <div key={i} className="bg-white rounded-2xl border border-gray-100 shadow-[0_2px_12px_rgba(0,0,0,0.03)] overflow-hidden">
-                            <div className="px-7 pt-7 pb-2">
-                                <h2 className="text-lg font-extrabold text-[#111] flex items-center gap-2.5 tracking-tight">
-                                    <span className="text-xl">{cat.icon}</span> {cat.title}
-                                </h2>
+        <Shell view="faq">
+            <PageHead title="자주 묻는 질문" sub="지원 전에 많이 물어보시는 내용을 모았습니다." />
+            <div className="body gut">
+                <div className="w">
+                    <div className="faqnav" data-in>
+                        {faqData.map((c, i) => (
+                            <button key={i} className={`chip${i === cat ? ' on' : ''}`} type="button" aria-pressed={i === cat} onClick={() => jump(i)}>
+                                {c.title}
+                            </button>
+                        ))}
+                    </div>
+                    {faqData.map((c, i) => (
+                        <section key={i} className="fcat" id={`fc${i}`}>
+                            <h2>{c.title}</h2>
+                            <div className="acc">
+                                {c.items.map((it, k) => (
+                                    <AccItem key={k} id={`f${i}_${k}`} q={it.q} a={it.a} />
+                                ))}
                             </div>
-                            <div className="px-7 pb-3">
-                                {cat.items.map((item, j) => {
-                                    const id = `${i}-${j}`;
-                                    return (
-                                        <FaqAccordion
-                                            key={j}
-                                            item={item}
-                                            isOpen={openId === id}
-                                            onToggle={() => setOpenId(openId === id ? null : id)}
-                                        />
-                                    );
-                                })}
-                            </div>
-                        </div>
+                        </section>
                     ))}
-                </div>
-
-                <div className="mt-16 text-center text-sm text-gray-400 font-medium">
-                    <p>추가 문의 사항이 있으시면 담당자에게 카카오톡으로 연락해 주세요.</p>
+                    <p style={{ color: 'var(--fg-3)' }}>찾는 답이 없다면 담당자에게 카카오톡으로 연락해 주세요.</p>
                 </div>
             </div>
-        </div>
+        </Shell>
     );
 };
 

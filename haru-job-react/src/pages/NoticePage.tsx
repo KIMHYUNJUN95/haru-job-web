@@ -1,6 +1,6 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, ChevronDown } from 'lucide-react';
+import Shell from '../components/site/Shell';
+import PageHead from '../components/site/PageHead';
+import AccItem from '../components/site/Accordion';
 
 interface NoticeItem {
     date: string;
@@ -37,7 +37,7 @@ const noticeData: NoticeItem[] = [
 - 린넨 관리
 
 ■ 근무 조건
-- 근무지: 신오쿠보 · 타카다노바바 · 아라키초 역세권
+- 근무지: 신오쿠보 · 타카다노바바 · 아케보노바시 역세권
 - 근무시간: 09:45 ~ 17:45 (하루 3~8시간 협의 가능)
 - 근무형태: 주 2~5일 / 금·토·일·월 가능자 우대
 - 시급: 1,350엔 시작 / 연수 후 1,500엔~2,200엔
@@ -67,74 +67,26 @@ const noticeData: NoticeItem[] = [
     },
 ];
 
-const NoticeAccordion = ({ item, isOpen, onToggle }: { item: NoticeItem; isOpen: boolean; onToggle: () => void }) => {
-    return (
-        <div className="border-b border-gray-100 last:border-b-0">
-            <button
-                onClick={onToggle}
-                className="w-full flex items-start sm:items-center justify-between py-5 px-1 text-left group flex-col sm:flex-row gap-2 sm:gap-4"
-            >
-                <div className="flex items-center gap-3">
-                    {item.important && (
-                        <span className="text-[10px] font-bold text-red-600 bg-red-50 px-2 py-0.5 rounded border border-red-100/50 shrink-0">
-                            중요
-                        </span>
-                    )}
-                    <span className={`font-semibold text-[15px] sm:text-[16px] transition-colors leading-snug ${isOpen ? 'text-[#111]' : 'text-[#333] group-hover:text-[#111]'}`}>
-                        {item.title}
-                    </span>
-                </div>
-                <div className="flex items-center justify-between w-full sm:w-auto">
-                    <span className="text-[13px] text-gray-400 font-medium whitespace-nowrap sm:ml-4">{item.date}</span>
-                    <ChevronDown className={`w-5 h-5 text-gray-400 shrink-0 ml-4 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
-                </div>
-            </button>
-            <div className={`overflow-hidden transition-all duration-300 ease-in-out ${isOpen ? 'max-h-[800px] opacity-100 pb-5' : 'max-h-0 opacity-0'}`}>
-                <div className="bg-gray-50/50 rounded-xl p-5 mt-2">
-                    <p className="text-[14px] text-gray-600 leading-relaxed font-medium whitespace-pre-wrap">
-                        {item.content}
-                    </p>
+const NoticePage = () => (
+    <Shell view="notice">
+        <PageHead title="공지사항" sub="채용과 운영에 관한 안내입니다." />
+        <div className="body gut">
+            <div className="w">
+                <div className="acc" data-in>
+                    {noticeData.map((n, i) => (
+                        <AccItem
+                            key={i}
+                            id={`n${i}`}
+                            q={n.title}
+                            a={n.content}
+                            pre={<><span className="nd">{n.date}</span>{n.important && <span className="imp">중요</span>}</>}
+                            defaultOpen={i === 0}
+                        />
+                    ))}
                 </div>
             </div>
         </div>
-    );
-};
-
-const NoticePage = () => {
-    const navigate = useNavigate();
-    const [openId, setOpenId] = useState<number | null>(null);
-
-    return (
-        <div className="min-h-screen bg-[#f8f8f6] font-sans">
-            <nav className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-lg border-b border-gray-100">
-                <div className="max-w-[900px] mx-auto px-6 h-16 flex items-center justify-between">
-                    <button onClick={() => navigate('/')} className="flex items-center gap-2 text-[#555] hover:text-[#111] transition-colors text-sm font-medium">
-                        <ArrowLeft className="w-4 h-4" /> 돌아가기
-                    </button>
-                    <span className="text-[15px] font-bold tracking-tight text-[#212322]">Stay Ari Tokyo</span>
-                    <div className="w-20" />
-                </div>
-            </nav>
-
-            <div className="pt-28 pb-20 px-6 max-w-[900px] mx-auto">
-                <h1 className="text-3xl md:text-4xl font-extrabold text-[#111] tracking-tight mb-3">공지사항</h1>
-                <p className="text-gray-500 font-medium mb-12 text-sm">STAY ARI TOKYO의 주요 채용 및 운영 안내 사항입니다.</p>
-
-                <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_2px_12px_rgba(0,0,0,0.03)] overflow-hidden">
-                    <div className="px-5 sm:px-7 py-3">
-                        {noticeData.map((item, i) => (
-                            <NoticeAccordion
-                                key={i}
-                                item={item}
-                                isOpen={openId === i}
-                                onToggle={() => setOpenId(openId === i ? null : i)}
-                            />
-                        ))}
-                    </div>
-                </div>
-            </div>
-        </div>
-    );
-};
+    </Shell>
+);
 
 export default NoticePage;
