@@ -929,3 +929,9 @@ body{letter-spacing:-.011em}
 /* snap cards to the content edge, not the viewport edge, so the row never parks with an empty right side */
 .gal{scroll-padding-inline:max(22px,calc((100vw - 1024px)/2))}
 .gal{padding-inline:max(22px,calc((100vw - 1024px)/2 + 22px));scroll-padding-inline:max(22px,calc((100vw - 1024px)/2 + 22px))}
+/* wide screens: the four value cards sit as one centred row (heading aligned to the same column); narrower screens keep the swipe row */
+@media (min-width:1100px){
+  .w-gal{max-width:1568px}
+  .gal{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;max-width:1568px;margin-inline:auto;padding-inline:22px;scroll-padding-inline:0;overflow:visible;cursor:default}
+  .gal .gc{flex:none}
+}

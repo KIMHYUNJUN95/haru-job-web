@@ -239,7 +239,7 @@ const LandingPage = () => {
                 </section>
 
                 <section className="sec2" style={{ overflow: 'hidden' }} aria-labelledby="valH">
-                    <div className="w gut"><p className="lab">How we work</p><h2 className="h2" id="valH">우리가 지키는 것들.</h2></div>
+                    <div className="w w-gal gut"><p className="lab">How we work</p><h2 className="h2" id="valH">우리가 지키는 것들.</h2></div>
                     <div className="gal" id="gal" ref={gal}>
                         {VALUES.map(v => (
                             <article className="gc" key={v.title}><img src={v.img} alt="" loading="lazy" draggable={false} /><div className="gt"><small>{v.small}</small><b>{v.title}</b><p>{v.text}</p></div></article>
